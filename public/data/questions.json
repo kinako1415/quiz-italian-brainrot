@@ -1,0 +1,23 @@
+[
+  {
+    "id": 1,
+    "sound": "sound1.mp3",
+    "correctAnswer": "image1.jpg",
+    "incorrectAnswers": ["image2.jpg", "image3.jpg", "image4.jpg"],
+    "questionText": "この音は何の音でしょう？"
+  },
+  {
+    "id": 2,
+    "sound": "sound2.mp3",
+    "correctAnswer": "image5.jpg",
+    "incorrectAnswers": ["image6.jpg", "image7.jpg", "image8.jpg"],
+    "questionText": "何の音？"
+  },
+  {
+    "id": 3,
+    "sound": "sound3.mp3",
+    "correctAnswer": "image9.jpg",
+    "incorrectAnswers": ["image10.jpg", "image11.jpg", "image12.jpg"],
+    "questionText": "この音を当ててください"
+  }
+]
