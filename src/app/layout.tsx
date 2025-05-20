@@ -15,7 +15,7 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Italian Brainrot pro",
   description:
-    "description: “Welcome to the chaotic world of Italian Brainrotter! Test your ‘brain endurance’ with quizzes based on strange AI-generated characters and nonsense voices. From Tralarello Tralala to Bombardino Crocodillo, this app will make you a great brainrotter!”",
+    "“Welcome to the chaotic world of Italian Brainrotter! Test your ‘brain endurance’ with quizzes based on strange AI-generated characters and nonsense voices. From Tralarello Tralala to Bombardino Crocodillo, this app will make you a great brainrotter!”",
 };
 
 export default function RootLayout({
