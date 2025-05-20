@@ -1,5 +1,7 @@
 import React from "react";
 import { useAtom } from "jotai";
+import { motion } from "framer-motion";
+import { CheckIcon, CrossCircledIcon } from "@radix-ui/react-icons";
 import {
   currentQuestionIndexAtom,
   questionsAtom,
@@ -11,6 +13,8 @@ import {
   correctAnswersAtom,
   incorrectAnswersAtom,
 } from "@/atoms";
+import { Button } from "@/components/ui/button";
+import type { Question } from "@/types";
 
 const AnswerButton = () => {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useAtom(
@@ -26,45 +30,63 @@ const AnswerButton = () => {
   const [incorrectAnswers, setIncorrectAnswers] = useAtom(incorrectAnswersAtom);
 
   const currentQuestion = questions[currentQuestionIndex];
+  const isCorrect = selectedAnswer === currentQuestion?.correctAnswer;
 
   const handleAnswer = () => {
     if (selectedAnswer === null) return;
 
     setIsTimerRunning(false);
-    const timeTaken = elapsedTime;
 
-    if (selectedAnswer === currentQuestion.correctAnswer) {
+    if (isCorrect) {
       setCorrectAnswers((prev) => prev + 1);
     } else {
       setIncorrectAnswers((prev) => prev + 1);
     }
 
-    if (currentQuestionIndex < questions.length - 1) {
-      setTimeout(() => {
+    // アニメーションの時間を確保するため、次の問題への遷移を遅延させる
+    setTimeout(() => {
+      if (currentQuestionIndex < questions.length - 1) {
         setCurrentQuestionIndex(currentQuestionIndex + 1);
         setSelectedAnswer(null);
         setTimerStartTime(null);
         setElapsedTime(0);
-      }, 1000);
-    } else {
-      setTimeout(() => {
+      } else {
         setGameStatus("finished");
-      }, 1000);
-    }
+      }
+    }, 1500);
   };
 
+  if (!selectedAnswer) {
+    return null;
+  }
+
   return (
-    <div className="flex justify-center mt-6">
-      <button
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="flex flex-col items-center gap-4"
+    >
+      <div className="flex items-center gap-2">
+        {isCorrect ? (
+          <CheckIcon className="w-6 h-6 text-green-400" />
+        ) : (
+          <CrossCircledIcon className="w-6 h-6 text-red-400" />
+        )}
+        <p className="text-lg font-medium text-white">
+          {isCorrect ? "正解！" : "不正解..."}
+        </p>
+      </div>
+      <Button
+        variant={isCorrect ? "success" : "danger"}
+        size="lg"
         onClick={handleAnswer}
-        disabled={selectedAnswer === null}
-        className="bg-purple-500/20 text-purple-300 hover:bg-purple-500/30
-                         border border-purple-500/30 px-8 py-3 rounded-full shadow-lg
-                         transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+        className="min-w-[200px]"
       >
-        回答する
-      </button>
-    </div>
+        {currentQuestionIndex < questions.length - 1
+          ? "次の問題へ"
+          : "結果を見る"}
+      </Button>
+    </motion.div>
   );
 };
 
