@@ -161,10 +161,6 @@ const QuizApp = ({ setStarted }: { setStarted: (value: boolean) => void }) => {
           正解数: <span className="text-green-400">{correctAnswers}</span> /{" "}
           {questions.length}
         </p>
-        <p className="text-2xl font-semibold">
-          不正解数: <span className="text-red-400">{incorrectAnswers}</span> /{" "}
-          {questions.length}
-        </p>
         <button
           className="mt-6 px-8 py-3 bg-gradient-to-r from-purple-400 to-pink-500 text-white font-bold rounded-full shadow-lg hover:from-pink-500 hover:to-purple-400 transition-all duration-300 transform hover:scale-110"
           onClick={() => {
