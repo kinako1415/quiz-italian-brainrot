@@ -75,5 +75,38 @@
       "BombardiroCrocodilo.webp"
     ],
     "questionText": "この音は何でしょう？"
+  },
+  {
+    "id": 8,
+    "sound": "BallerinaCappuccina.mp3",
+    "correctAnswer": "BallerinaCappuccina.webp",
+    "incorrectAnswers": [
+      "BombombiniGusini.webp",
+      "BonecaAmbalabu.webp",
+      "CapuccinoAssassino.webp"
+    ],
+    "questionText": "この音はどの画像に対応しますか？"
+  },
+  {
+    "id": 9,
+    "sound": "FrigoCamelo.mp3",
+    "correctAnswer": "FrigoCamelo.webp",
+    "incorrectAnswers": [
+      "GirafaCelestre.webp",
+      "LaSaturnoSaturnita.webp",
+      "TrippiTroppi.webp"
+    ],
+    "questionText": "この音は何を表していますか？"
+  },
+  {
+    "id": 10,
+    "sound": "TrulimeroTrulicina.mp3",
+    "correctAnswer": "TrulimeroTrulicina.webp",
+    "incorrectAnswers": [
+      "BallerinaCappuccina.webp",
+      "BombombiniGusini.webp",
+      "BonecaAmbalabu.webp"
+    ],
+    "questionText": "この音楽はどれに対応しますか？"
   }
 ]

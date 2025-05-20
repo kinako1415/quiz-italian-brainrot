@@ -28,11 +28,42 @@ const QuizApp = () => {
 
   // 問題データの読み込み
   useEffect(() => {
-    const loadQuestions = async () => {
-      const res = await fetch("/data/questions.json");
-      const data = await res.json();
-      setQuestions(data);
+    const fetchFiles = async (path: string): Promise<string[]> => {
+      const res = await fetch(path);
+      if (!res.ok) throw new Error(`Failed to fetch files from ${path}`);
+      return res.json();
     };
+
+    const loadQuestions = async () => {
+      try {
+        const soundFiles = await fetchFiles("/api/sounds");
+        const imageFiles = await fetchFiles("/api/images");
+
+        const questions = soundFiles
+          .filter((sound) =>
+            imageFiles.includes(sound.replace(".mp3", ".webp"))
+          )
+          .map((sound) => {
+            const correctAnswer = sound.replace(".mp3", ".webp");
+            const incorrectAnswers = imageFiles
+              .filter((img) => img !== correctAnswer)
+              .sort(() => Math.random() - 0.5)
+              .slice(0, 3);
+
+            return {
+              sound,
+              correctAnswer,
+              incorrectAnswers,
+              questionText: "この音は何でしょう？",
+            };
+          });
+
+        setQuestions(questions.sort(() => Math.random() - 0.5));
+      } catch (error) {
+        console.error("Error loading questions:", error);
+      }
+    };
+
     loadQuestions();
   }, [setQuestions]);
 
@@ -41,14 +72,27 @@ const QuizApp = () => {
       setShuffled([]);
       return;
     }
+
     const current = questions[currentQuestionIndex];
-    const allAnswers = [current.correctAnswer, ...current.incorrectAnswers];
-    setShuffled([...allAnswers].sort(() => Math.random() - 0.5));
+
+    // 正解の画像
+    const correctImage = current.correctAnswer;
+
+    // 不正解の画像をランダムに3つ選択
+    const incorrectImages = current.incorrectAnswers
+      .sort(() => Math.random() - 0.5)
+      .slice(0, 3);
+
+    // 正解と不正解を混ぜてシャッフル
+    const allAnswers = [correctImage, ...incorrectImages].sort(
+      () => Math.random() - 0.5
+    );
+    setShuffled(allAnswers);
   }, [questions, currentQuestionIndex]);
 
   const handleSelect = (img: string) => {
     // すでに回答が選択されている場合は何もしない
-    if (selectedAnswer) return;
+    if (selectedAnswer || !current?.sound) return; // 音声がない場合は何もしない
 
     // 回答を選択
     setSelectedAnswer(img);
@@ -111,7 +155,7 @@ const QuizApp = () => {
     return (
       <div className="text-white text-center space-y-6 p-8 bg-gradient-to-br from-purple-800 to-gray-900 rounded-lg shadow-2xl transform scale-105 animate-fade-in">
         <h2 className="text-4xl font-extrabold bg-clip-text text-transparent bg-gradient-to-r from-pink-400 to-purple-400 drop-shadow-lg">
-          🎉 結果発表 🎉
+          結果発表
         </h2>
         <p className="text-2xl font-semibold">
           正解数: <span className="text-green-400">{correctAnswers}</span> /{" "}
@@ -121,28 +165,33 @@ const QuizApp = () => {
           不正解数: <span className="text-red-400">{incorrectAnswers}</span> /{" "}
           {questions.length}
         </p>
-        <div className="mt-6 space-y-4">
-          <h3 className="text-2xl font-bold text-purple-300">正解一覧</h3>
-          <ul className="list-disc list-inside text-left mx-auto max-w-md">
-            {questions.map((q, index) => (
-              <li key={index} className="text-lg">
-                <span className="font-bold text-white">{q.questionText}</span>:
-                <span className="text-green-400">{q.correctAnswer}</span>
-              </li>
-            ))}
-          </ul>
-        </div>
         <button
-          className="mt-6 px-8 py-3 bg-gradient-to-r from-green-400 to-blue-500 text-white font-bold rounded-full shadow-lg hover:from-blue-500 hover:to-green-400 transition-all duration-300 transform hover:scale-110"
+          className="mt-6 px-8 py-3 bg-gradient-to-r from-purple-400 to-pink-500 text-white font-bold rounded-full shadow-lg hover:from-pink-500 hover:to-purple-400 transition-all duration-300 transform hover:scale-110"
           onClick={() => {
             setCurrentQuestionIndex(0);
             setSelectedAnswer(null);
             setCorrectAnswers(0);
             setIncorrectAnswers(0);
-            setGameStatus("ready");
+            setGameStatus("start");
           }}
         >
-          もう一度プレイ
+          スタート画面に戻る
+        </button>
+      </div>
+    );
+  }
+
+  if (gameStatus === "start") {
+    return (
+      <div className="flex flex-col items-center justify-center h-screen bg-gradient-to-br from-blue-800 to-gray-900 text-white">
+        <h1 className="text-5xl font-extrabold mb-8">
+          クイズアプリへようこそ！
+        </h1>
+        <button
+          onClick={() => setGameStatus("ready")}
+          className="px-6 py-3 bg-gradient-to-r from-green-400 to-blue-500 text-white font-bold rounded-full shadow-lg hover:from-blue-500 hover:to-green-400 transition-all duration-300 transform hover:scale-110"
+        >
+          スタート
         </button>
       </div>
     );
@@ -153,7 +202,7 @@ const QuizApp = () => {
   }
 
   return (
-    <div className="flex flex-col items-center justify-center h-screen gap-4 p-4 bg-gradient-to-br from-gray-800 to-gray-900 rounded-lg shadow-xl">
+    <div className="flex flex-col items-center justify-center h-screen gap-4 p-4 bg-gradient-to-b rounded-lg shadow-xl fixed top-0 left-0 right-0 bottom-0 backdrop-blur-md">
       <p className="text-white text-lg font-semibold">{current.questionText}</p>
       <div className="flex items-center justify-center gap-2 text-white text-sm font-medium">
         <span className="bg-gray-700 text-green-400 px-3 py-1 rounded-full shadow-md">
