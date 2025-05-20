@@ -187,27 +187,29 @@ const QuizApp = ({ setStarted }: { setStarted: (value: boolean) => void }) => {
   }
 
   return (
-    <div className="flex flex-col items-center justify-center h-screen gap-4 p-4 bg-gradient-to-b rounded-lg shadow-xl fixed top-0 left-0 right-0 bottom-0 backdrop-blur-md">
-      <p className="text-white text-lg font-semibold">{current.questionText}</p>
-      <div className="flex items-center justify-center gap-2 text-white text-sm font-medium">
-        <span className="bg-gray-700 text-green-400 px-3 py-1 rounded-full shadow-md">
+    <div className="flex flex-col items-center justify-center h-screen gap-4 p-4 bg-gradient-to-b rounded-lg shadow-xl fixed top-0 left-0 right-0 bottom-0 backdrop-blur-md sm:p-6 md:p-8">
+      <p className="text-white text-lg font-semibold text-center sm:text-xl md:text-2xl">
+        {current.questionText}
+      </p>
+      <div className="flex items-center justify-center gap-2 text-white text-sm font-medium sm:gap-4 md:gap-6">
+        <span className="bg-gray-700 text-green-400 px-3 py-1 rounded-full shadow-md sm:px-4 sm:py-2 md:px-5 md:py-3">
           ⏱️ {elapsedTime} 秒
         </span>
         <button
           onClick={playAudio}
           disabled={false} // 再生ボタンを常に有効化
-          className="bg-blue-500 text-white px-3 py-1 rounded-full shadow-md hover:bg-blue-600 transition-all duration-300"
+          className="bg-blue-500 text-white px-3 py-1 rounded-full shadow-md hover:bg-blue-600 transition-all duration-300 sm:px-4 sm:py-2 md:px-5 md:py-3"
         >
           再生
         </button>
       </div>
-      <div className="flex flex-wrap justify-center gap-4">
+      <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4">
         {shuffled.map((img) => (
           <button
             key={img}
             onClick={() => handleSelect(img)}
             disabled={!!selectedAnswer}
-            className={`relative rounded-lg overflow-hidden border-4 transition-all duration-300 transform hover:scale-105 ${
+            className={`relative rounded-lg overflow-hidden border-4 transition-all duration-300 transform hover:scale-105 sm:border-2 md:border-4 ${
               selectedAnswer
                 ? img === current.correctAnswer
                   ? "border-green-500 shadow-lg shadow-green-500/50"
@@ -234,14 +236,14 @@ const QuizApp = ({ setStarted }: { setStarted: (value: boolean) => void }) => {
         ))}
       </div>
       {selectedAnswer && (
-        <div className="text-white mt-2 text-lg font-bold">
+        <div className="text-white mt-2 text-lg font-bold text-center sm:text-xl md:text-2xl">
           {selectedAnswer === current.correctAnswer ? "正解！" : "不正解..."}
         </div>
       )}
       <button
         onClick={handleNext}
         disabled={false} // 次へボタンを常に有効化
-        className="mt-2 px-4 py-2 bg-blue-500 text-white rounded-full shadow-lg hover:bg-blue-600 transition-all duration-300 transform hover:scale-105"
+        className="mt-2 px-4 py-2 bg-blue-500 text-white rounded-full shadow-lg hover:bg-blue-600 transition-all duration-300 transform hover:scale-105 sm:px-6 sm:py-3 md:px-8 md:py-4"
       >
         次へ
       </button>
