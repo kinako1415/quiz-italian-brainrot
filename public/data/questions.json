@@ -1,0 +1,79 @@
+[
+  {
+    "id": 1,
+    "sound": "BrrBrrPatapim.mp3",
+    "correctAnswer": "BrrBrrPatapim.webp",
+    "incorrectAnswers": [
+      "BombardiroCrocodilo.webp",
+      "ChimpanziniBananini.webp",
+      "TralaleroTralala.webp"
+    ],
+    "questionText": "この音は何でしょう？"
+  },
+  {
+    "id": 2,
+    "sound": "UDinDin.mp3",
+    "correctAnswer": "UDinDin.webp",
+    "incorrectAnswers": [
+      "LiriliLarila.webp",
+      "BombardiroCrocodilo.webp",
+      "ChimpanziniBananini.webp"
+    ],
+    "questionText": "何の音？"
+  },
+  {
+    "id": 3,
+    "sound": "ChimpanziniBananini.mp3",
+    "correctAnswer": "ChimpanziniBananini.webp",
+    "incorrectAnswers": [
+      "LiriliLarila.webp",
+      "TralaleroTralala.webp",
+      "TungTungSahur.webp"
+    ],
+    "questionText": "この音は何の動物でしょう？"
+  },
+  {
+    "id": 4,
+    "sound": "TralaleroTralala.mp3",
+    "correctAnswer": "TralaleroTralala.webp",
+    "incorrectAnswers": [
+      "BombardiroCrocodilo.webp",
+      "ChimpanziniBananini.webp",
+      "LiriliLarila.webp"
+    ],
+    "questionText": "この音楽はどれに対応しますか？"
+  },
+  {
+    "id": 5,
+    "sound": "BombardiroCrocodilo.mp3",
+    "correctAnswer": "BombardiroCrocodilo.webp",
+    "incorrectAnswers": [
+      "TungTungSahur.webp",
+      "TralaleroTralala.webp",
+      "ChimpanziniBananini.webp"
+    ],
+    "questionText": "この音は何を表していますか？"
+  },
+  {
+    "id": 6,
+    "sound": "LiriliLarila.mp3",
+    "correctAnswer": "LiriliLarila.webp",
+    "incorrectAnswers": [
+      "BombardiroCrocodilo.webp",
+      "TungTungSahur.webp",
+      "TralaleroTralala.webp"
+    ],
+    "questionText": "この音はどの画像に対応しますか？"
+  },
+  {
+    "id": 7,
+    "sound": "TungTungSahur.mp3",
+    "correctAnswer": "TungTungSahur.webp",
+    "incorrectAnswers": [
+      "LiriliLarila.webp",
+      "ChimpanziniBananini.webp",
+      "BombardiroCrocodilo.webp"
+    ],
+    "questionText": "この音は何でしょう？"
+  }
+]
