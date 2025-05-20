@@ -1,23 +1,37 @@
 [
   {
     "id": 1,
-    "sound": "sound1.mp3",
-    "correctAnswer": "image1.jpg",
-    "incorrectAnswers": ["image2.jpg", "image3.jpg", "image4.jpg"],
+    "sound": "BombardiroCrocodilo.mp3",
+    "correctAnswer": "BombardiroCrocodilo.webp",
+    "incorrectAnswers": ["ChimpanziniBananini.webp", "LiriliLarila.webp", "TralaleroTralala.webp"],
     "questionText": "この音は何の音でしょう？"
   },
   {
     "id": 2,
-    "sound": "sound2.mp3",
-    "correctAnswer": "image5.jpg",
-    "incorrectAnswers": ["image6.jpg", "image7.jpg", "image8.jpg"],
-    "questionText": "何の音？"
+    "sound": "ChimpanziniBananini.mp3",
+    "correctAnswer": "ChimpanziniBananini.webp",
+    "incorrectAnswers": ["BombardiroCrocodilo.webp", "TungTungSahur.webp", "TralaleroTralala.webp"],
+    "questionText": "この音は何の音でしょう？"
   },
   {
     "id": 3,
-    "sound": "sound3.mp3",
-    "correctAnswer": "image9.jpg",
-    "incorrectAnswers": ["image10.jpg", "image11.jpg", "image12.jpg"],
-    "questionText": "この音を当ててください"
+    "sound": "LiriliLarila.mp3",
+    "correctAnswer": "LiriliLarila.webp",
+    "incorrectAnswers": ["BombardiroCrocodilo.webp", "ChimpanziniBananini.webp", "TungTungSahur.webp"],
+    "questionText": "この音は何の音でしょう？"
+  },
+  {
+    "id": 4,
+    "sound": "TralaleroTralala.mp3",
+    "correctAnswer": "TralaleroTralala.webp",
+    "incorrectAnswers": ["LiriliLarila.webp", "TungTungSahur.webp", "ChimpanziniBananini.webp"],
+    "questionText": "この音は何の音でしょう？"
+  },
+  {
+    "id": 5,
+    "sound": "TungTungSahur.mp3",
+    "correctAnswer": "TungTungSahur.webp",
+    "incorrectAnswers": ["BombardiroCrocodilo.webp", "TralaleroTralala.webp", "LiriliLarila.webp"],
+    "questionText": "この音は何の音でしょう？"
   }
 ]
