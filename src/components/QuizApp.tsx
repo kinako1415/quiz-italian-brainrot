@@ -11,7 +11,7 @@ import {
 } from "@/atoms";
 import Image from "next/image";
 
-const QuizApp = () => {
+const QuizApp = ({ setStarted }: { setStarted: (value: boolean) => void }) => {
   const [questions, setQuestions] = useAtom(questionsAtom);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useAtom(
     currentQuestionIndexAtom
@@ -168,30 +168,15 @@ const QuizApp = () => {
         <button
           className="mt-6 px-8 py-3 bg-gradient-to-r from-purple-400 to-pink-500 text-white font-bold rounded-full shadow-lg hover:from-pink-500 hover:to-purple-400 transition-all duration-300 transform hover:scale-110"
           onClick={() => {
+            setStarted(false);
             setCurrentQuestionIndex(0);
             setSelectedAnswer(null);
             setCorrectAnswers(0);
             setIncorrectAnswers(0);
-            setGameStatus("start");
+            setGameStatus("ready");
           }}
         >
           スタート画面に戻る
-        </button>
-      </div>
-    );
-  }
-
-  if (gameStatus === "start") {
-    return (
-      <div className="flex flex-col items-center justify-center h-screen bg-gradient-to-br from-blue-800 to-gray-900 text-white">
-        <h1 className="text-5xl font-extrabold mb-8">
-          クイズアプリへようこそ！
-        </h1>
-        <button
-          onClick={() => setGameStatus("ready")}
-          className="px-6 py-3 bg-gradient-to-r from-green-400 to-blue-500 text-white font-bold rounded-full shadow-lg hover:from-blue-500 hover:to-green-400 transition-all duration-300 transform hover:scale-110"
-        >
-          スタート
         </button>
       </div>
     );

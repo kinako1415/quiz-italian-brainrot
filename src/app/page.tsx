@@ -27,7 +27,7 @@ export default function Home() {
           </button>
         </div>
       ) : (
-        <QuizApp />
+        <QuizApp setStarted={setStarted} />
       )}
     </div>
   );
