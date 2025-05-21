@@ -21,10 +21,12 @@ const QuizApp = ({ setStarted }: { setStarted: (value: boolean) => void }) => {
   const [correctAnswers, setCorrectAnswers] = useAtom(correctAnswersAtom);
   const [incorrectAnswers, setIncorrectAnswers] = useAtom(incorrectAnswersAtom);
   const [shuffled, setShuffled] = React.useState<string[]>([]);
-  const [elapsedTime, setElapsedTime] = React.useState(0); // 経過時間を管理
+  const [elapsedTime, setElapsedTime] = React.useState(0); // 経過時間 (ms 単位)
+  const [totalElapsedTime, setTotalElapsedTime] = React.useState(0); // 全体の合計時間 (ms 単位)
 
   // 再生中の音声を管理するための ref を追加
   const audioRef = React.useRef<HTMLAudioElement | null>(null);
+  const timerRef = React.useRef<NodeJS.Timeout | null>(null); // タイマーを管理
 
   // 問題データの読み込み
   useEffect(() => {
@@ -105,26 +107,39 @@ const QuizApp = ({ setStarted }: { setStarted: (value: boolean) => void }) => {
     }
   };
 
+  React.useEffect(() => {
+    timerRef.current = setInterval(() => {
+      setElapsedTime((prev) => prev + 10); // 10ms ごとに更新
+    }, 10); // 更新間隔を10msに設定
+
+    return () => {
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+      }
+    };
+  }, []);
+
   const handleNext = React.useCallback(() => {
     if (currentQuestionIndex < questions.length - 1) {
+      setTotalElapsedTime((prev) => prev + elapsedTime); // 合計時間を更新
       setCurrentQuestionIndex(currentQuestionIndex + 1);
       setSelectedAnswer(null);
       setElapsedTime(0); // タイマーをリセット
     } else {
+      setTotalElapsedTime((prev) => prev + elapsedTime); // 最後の問題の時間を加算
       setGameStatus("finished");
+      if (timerRef.current) {
+        clearInterval(timerRef.current); // タイマーを終了
+      }
     }
   }, [
     currentQuestionIndex,
     questions.length,
+    elapsedTime,
     setCurrentQuestionIndex,
     setSelectedAnswer,
     setGameStatus,
   ]);
-
-  React.useEffect(() => {
-    const timer = setInterval(() => setElapsedTime((prev) => prev + 1), 1000);
-    return () => clearInterval(timer);
-  }, []);
 
   const current = questions[currentQuestionIndex] || null;
 
@@ -161,6 +176,12 @@ const QuizApp = ({ setStarted }: { setStarted: (value: boolean) => void }) => {
           正解数: <span className="text-green-400">{correctAnswers}</span> /{" "}
           {questions.length}
         </p>
+        <p className="text-2xl font-semibold">
+          合計時間:{" "}
+          <span className="text-yellow-400">
+            {(totalElapsedTime / 1000).toFixed(2)} 秒
+          </span>
+        </p>
         <button
           className="mt-6 px-8 py-3 bg-gradient-to-r from-purple-400 to-pink-500 text-white font-bold rounded-full shadow-lg hover:from-pink-500 hover:to-purple-400 transition-all duration-300 transform hover:scale-110"
           onClick={() => {
@@ -170,6 +191,7 @@ const QuizApp = ({ setStarted }: { setStarted: (value: boolean) => void }) => {
             setCorrectAnswers(0);
             setIncorrectAnswers(0);
             setGameStatus("ready");
+            setTotalElapsedTime(0); // 合計時間をリセット
           }}
         >
           スタート画面に戻る
@@ -189,7 +211,7 @@ const QuizApp = ({ setStarted }: { setStarted: (value: boolean) => void }) => {
       </p>
       <div className="flex items-center justify-center gap-2 text-white text-sm font-medium sm:gap-4 md:gap-6">
         <span className="bg-gray-700 text-green-400 px-3 py-1 rounded-full shadow-md sm:px-4 sm:py-2 md:px-5 md:py-3">
-          ⏱️ {elapsedTime} 秒
+          ⏱️ {(elapsedTime / 1000).toFixed(3)} 秒
         </span>
         <button
           onClick={playAudio}
