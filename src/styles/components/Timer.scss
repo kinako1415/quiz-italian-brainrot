@@ -1,0 +1,41 @@
+.timer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.timer__header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.timer__icon {
+  width: 1.5rem;
+  height: 1.5rem;
+}
+
+.timer__time {
+  font-size: 1.25rem;
+  font-weight: bold;
+}
+
+.timer__unit {
+  font-size: 0.875rem;
+  color: #666;
+}
+
+.timer__progress {
+  position: relative;
+  width: 100%;
+  height: 0.5rem;
+  background-color: #e5e7eb;
+  border-radius: 0.25rem;
+  overflow: hidden;
+}
+
+.timer__indicator {
+  height: 100%;
+  background-color: #3b82f6;
+  transition: transform 0.2s ease;
+}
