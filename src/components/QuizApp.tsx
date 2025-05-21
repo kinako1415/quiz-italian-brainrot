@@ -202,7 +202,7 @@ const QuizApp = ({ setStarted }: { setStarted: (value: boolean) => void }) => {
   return (
     <div className="flex flex-col items-center justify-center h-screen gap-4 p-4 bg-gradient-to-b rounded-lg shadow-xl fixed top-0 left-0 right-0 bottom-0 backdrop-blur-md sm:p-6 md:p-8">
       {selectedAnswer && (
-        <div className="text-white mt-2 text-lg font-bold text-center fixed sm:text-xl z-50 top-50 md:text-2xl">
+        <div className="text-white mt-2 text-lg font-bold text-center fixed sm:text-xl z-50 top-[10%] transform -translate-y-1/2 md:text-2xl">
           {selectedAnswer === current.correctAnswer ? "正解！" : "不正解..."}
         </div>
       )}
