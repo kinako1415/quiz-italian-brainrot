@@ -206,7 +206,7 @@ const QuizApp = ({ setStarted }: { setStarted: (value: boolean) => void }) => {
       </p>
       <div className="flex items-center justify-center gap-2 text-white text-sm font-medium sm:gap-4 md:gap-6">
         <span className="bg-gray-700 text-green-400 px-3 py-1 rounded-full shadow-md sm:px-4 sm:py-2 md:px-5 md:py-3">
-          ⏱️ {(elapsedTime / 1000).toFixed(3)} 秒
+          ⏱️ {(elapsedTime / 1000).toFixed(2)} 秒
         </span>
         <button
           onClick={playAudio}
@@ -237,13 +237,7 @@ const QuizApp = ({ setStarted }: { setStarted: (value: boolean) => void }) => {
               alt={"選択肢"}
               width={150}
               height={150}
-              className={`object-cover w-full h-full rounded-lg ${
-                selectedAnswer &&
-                selectedAnswer !== img &&
-                img !== current.correctAnswer
-                  ? "opacity-50"
-                  : ""
-              }`}
+              className="object-cover w-[150px] h-[150px]"
             />
           </button>
         ))}
