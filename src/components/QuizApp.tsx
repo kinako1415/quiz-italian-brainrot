@@ -7,7 +7,6 @@ import {
   selectedAnswerAtom,
   gameStatusAtom,
   correctAnswersAtom,
-  incorrectAnswersAtom,
 } from "@/atoms";
 import Image from "next/image";
 
@@ -19,7 +18,6 @@ const QuizApp = ({ setStarted }: { setStarted: (value: boolean) => void }) => {
   const [selectedAnswer, setSelectedAnswer] = useAtom(selectedAnswerAtom);
   const [gameStatus, setGameStatus] = useAtom(gameStatusAtom);
   const [correctAnswers, setCorrectAnswers] = useAtom(correctAnswersAtom);
-  const [incorrectAnswers, setIncorrectAnswers] = useAtom(incorrectAnswersAtom);
   const [shuffled, setShuffled] = React.useState<string[]>([]);
   const [elapsedTime, setElapsedTime] = React.useState(0); // 経過時間 (ms 単位)
   const [totalElapsedTime, setTotalElapsedTime] = React.useState(0); // 全体の合計時間 (ms 単位)
@@ -102,8 +100,6 @@ const QuizApp = ({ setStarted }: { setStarted: (value: boolean) => void }) => {
     // 正解・不正解のカウントを更新
     if (img === current.correctAnswer) {
       setCorrectAnswers((prev) => prev + 1);
-    } else {
-      setIncorrectAnswers((prev) => prev + 1);
     }
   };
 
@@ -189,7 +185,6 @@ const QuizApp = ({ setStarted }: { setStarted: (value: boolean) => void }) => {
             setCurrentQuestionIndex(0);
             setSelectedAnswer(null);
             setCorrectAnswers(0);
-            setIncorrectAnswers(0);
             setGameStatus("ready");
             setTotalElapsedTime(0); // 合計時間をリセット
           }}
