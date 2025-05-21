@@ -59,7 +59,7 @@ const QuizApp = ({ setStarted }: { setStarted: (value: boolean) => void }) => {
             };
           });
 
-        setQuestions(questions.sort(() => Math.random() - 0.5));
+        setQuestions(questions.sort(() => Math.random() - 0.5).slice(0, 10));
       } catch (error) {
         console.error("Error loading questions:", error);
       }
