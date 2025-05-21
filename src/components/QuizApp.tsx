@@ -201,8 +201,13 @@ const QuizApp = ({ setStarted }: { setStarted: (value: boolean) => void }) => {
 
   return (
     <div className="flex flex-col items-center justify-center h-screen gap-4 p-4 bg-gradient-to-b rounded-lg shadow-xl fixed top-0 left-0 right-0 bottom-0 backdrop-blur-md sm:p-6 md:p-8">
+      {selectedAnswer && (
+        <div className="text-white mt-2 text-lg font-bold text-center fixed sm:text-xl z-50 top-50 md:text-2xl">
+          {selectedAnswer === current.correctAnswer ? "正解！" : "不正解..."}
+        </div>
+      )}
       <p className="text-white text-lg font-semibold text-center sm:text-xl md:text-2xl">
-        {current.questionText}
+        kore wa nani no oto desu ka?
       </p>
       <div className="flex items-center justify-center gap-2 text-white text-sm font-medium sm:gap-4 md:gap-6">
         <span className="bg-gray-700 text-green-400 px-3 py-1 rounded-full shadow-md sm:px-4 sm:py-2 md:px-5 md:py-3">
@@ -242,11 +247,6 @@ const QuizApp = ({ setStarted }: { setStarted: (value: boolean) => void }) => {
           </button>
         ))}
       </div>
-      {selectedAnswer && (
-        <div className="text-white mt-2 text-lg font-bold text-center sm:text-xl md:text-2xl">
-          {selectedAnswer === current.correctAnswer ? "正解！" : "不正解..."}
-        </div>
-      )}
       <button
         onClick={handleNext}
         disabled={false} // 次へボタンを常に有効化
