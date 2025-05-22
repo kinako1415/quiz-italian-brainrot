@@ -182,7 +182,7 @@ const QuizApp = ({ setStarted }: { setStarted: (value: boolean) => void }) => {
   }
 
   if (!current) {
-    return <div className="text-white">問題を読み込んでいます...</div>;
+    return <div className="text-white">ローディング中...</div>;
   }
 
   return (
