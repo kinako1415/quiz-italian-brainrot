@@ -182,7 +182,56 @@ const QuizApp = ({ setStarted }: { setStarted: (value: boolean) => void }) => {
   }
 
   if (!current) {
-    return <div className="text-white">ローディング中...</div>;
+    return (
+      <div className="flex items-center justify-center h-screen bg-gradient-to-b from-gray-800 to-gray-900">
+        <div className="flex flex-col items-center">
+          <div className="loader mb-4">
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+          </div>
+          <p className="text-white text-lg font-semibold animate-pulse">
+            ローディング中...
+          </p>
+        </div>
+        <style jsx>{`
+          .loader {
+            display: flex;
+            justify-content: space-around;
+            width: 80px;
+            height: 80px;
+            position: relative;
+          }
+          .loader div {
+            width: 16px;
+            height: 16px;
+            background-color: #ffffff;
+            border-radius: 50%;
+            animation: loader-animation 1.2s infinite ease-in-out;
+          }
+          .loader div:nth-child(1) {
+            animation-delay: -0.24s;
+          }
+          .loader div:nth-child(2) {
+            animation-delay: -0.12s;
+          }
+          .loader div:nth-child(3) {
+            animation-delay: 0;
+          }
+          @keyframes loader-animation {
+            0%,
+            80%,
+            100% {
+              transform: scale(0);
+            }
+            40% {
+              transform: scale(1);
+            }
+          }
+        `}</style>
+      </div>
+    );
   }
 
   return (
