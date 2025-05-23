@@ -142,6 +142,7 @@ const QuizApp = ({ setStarted }: { setStarted: (value: boolean) => void }) => {
 
   const playAudio = React.useCallback(() => {
     if (!current) return; // current が null の場合は何もしない
+    if (gameStatus === "finished") return; // ゲーム終了時は音を再生しない
 
     // 再生中の音声を停止
     if (audioRef.current && !audioRef.current.paused) {
@@ -157,11 +158,18 @@ const QuizApp = ({ setStarted }: { setStarted: (value: boolean) => void }) => {
         console.error("音声の再生中にエラーが発生しました:", error);
       }
     });
-  }, [current]);
+  }, [current, gameStatus]);
 
   React.useEffect(() => {
     playAudio();
   }, [current, playAudio]);
+
+  React.useEffect(() => {
+    if (gameStatus === "finished" && audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current.currentTime = 0;
+    }
+  }, [gameStatus]);
 
   if (gameStatus === "finished") {
     return (
