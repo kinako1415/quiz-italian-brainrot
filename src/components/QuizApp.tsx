@@ -446,8 +446,12 @@ const QuizApp = ({ setStarted }: { setStarted: (value: boolean) => void }) => {
       </div>
       <button
         onClick={handleNext}
-        disabled={false} // 次へボタンを常に有効化
-        className="mt-2 px-4 py-2 bg-blue-500 text-white rounded-full shadow-lg hover:bg-blue-600 transition-all duration-300 transform hover:scale-105 sm:px-6 sm:py-3 md:px-8 md:py-4"
+        disabled={!selectedAnswer} // 回答が選択されていない場合は無効化
+        className={`mt-2 px-4 py-2 rounded-full shadow-lg transition-all duration-300 transform sm:px-6 sm:py-3 md:px-8 md:py-4 ${
+          selectedAnswer
+            ? "bg-blue-500 text-white hover:bg-blue-600 hover:scale-105"
+            : "bg-gray-400 text-gray-200 cursor-not-allowed"
+        }`}
       >
         次へ
       </button>
