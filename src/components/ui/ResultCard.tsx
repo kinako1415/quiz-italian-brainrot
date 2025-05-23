@@ -14,7 +14,8 @@ const ResultCard: React.FC<ResultCardProps> = ({
   totalElapsedTime,
   onRestart,
 }) => {
-  const { toggle, isPlaying } = useAudio("/bgm/bgm1.mp3", true, true);
+  // BGMを自動再生。toggle、isPlayingは使用しないので変数を省略
+  useAudio("/bgm/bgm1.mp3", true, true);
 
   return (
     <div
