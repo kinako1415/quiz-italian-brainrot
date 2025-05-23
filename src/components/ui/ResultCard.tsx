@@ -1,4 +1,5 @@
 import React from "react";
+import useAudio from "@/hooks/useAudio";
 
 interface ResultCardProps {
   correctAnswers: number;
@@ -13,9 +14,11 @@ const ResultCard: React.FC<ResultCardProps> = ({
   totalElapsedTime,
   onRestart,
 }) => {
+  const { toggle, isPlaying } = useAudio("/bgm/bgm1.mp3", true, true);
+
   return (
     <div
-      className="text-white text-center space-y-6 p-8 bg-gradient-to-br shadow-2xl transform scale-105 animate-fade-in"
+      className="text-white text-center space-y-6 p-8 bg-gradient-to-br shadow-2xl transform scale-105 animate-fade-in relative"
       style={{
         background: "rgba(255, 255, 255, 0.05)",
         boxShadow: "0 8px 32px 0 rgba(31, 38, 135, 0.37)",
@@ -40,12 +43,15 @@ const ResultCard: React.FC<ResultCardProps> = ({
           </span>
         </p>
       </div>
-      <button
-        className="px-8 py-3 bg-gradient-to-r from-purple-400 to-pink-500 text-white font-bold rounded-full shadow-lg transition-all duration-300 transform hover:scale-104"
-        onClick={onRestart}
-      >
-        スタート画面に戻る
-      </button>
+
+      <div className="flex flex-col items-center gap-4">
+        <button
+          className="px-8 py-3 bg-gradient-to-r from-purple-400 to-pink-500 text-white font-bold rounded-full shadow-lg transition-all duration-300 transform hover:scale-104"
+          onClick={onRestart}
+        >
+          スタート画面に戻る
+        </button>
+      </div>
     </div>
   );
 };
