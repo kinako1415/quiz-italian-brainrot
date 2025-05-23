@@ -183,7 +183,7 @@ const QuizApp = ({ setStarted }: { setStarted: (value: boolean) => void }) => {
 
   if (!current) {
     return (
-      <div className="flex items-center justify-center h-screen bg-gradient-to-b from-gray-800 to-gray-900">
+      <div className="flex items-center justify-center h-screen bg-gradient-to-b">
         <div className="flex flex-col items-center">
           <div className="loader mb-4">
             <div></div>
