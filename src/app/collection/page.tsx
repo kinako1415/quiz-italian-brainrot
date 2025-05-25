@@ -203,7 +203,7 @@ export default function Collection() {
               placeholder="検索..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full px-4 py-2 rounded-full shadow-lg border-2 border-purple-400 bg-white bg-opacity-10 backdrop-blur-md text-white placeholder-gray-300 focus:border-pink-400 focus:outline-none transition-colors duration-300"
+              className="w-full px-4 py-2 rounded-full shadow-lg border-2 border-purple-400 backdrop-blur-md text-white placeholder-gray-300 focus:border-pink-400 focus:outline-none transition-colors duration-300"
             />
           </div>
 
@@ -211,7 +211,7 @@ export default function Collection() {
             <select
               value={selectedCategory}
               onChange={(e) => setSelectedCategory(e.target.value)}
-              className="w-full px-4 py-2 rounded-full shadow-lg border-2 border-purple-400 bg-white bg-opacity-10 backdrop-blur-md text-white focus:border-pink-400 focus:outline-none transition-colors duration-300"
+              className="w-full px-4 py-2 rounded-full shadow-lg border-2 border-purple-400 bg-opacity-10 backdrop-blur-md text-white focus:border-pink-400 focus:outline-none transition-colors duration-300"
             >
               {categories.map((category) => (
                 <option
