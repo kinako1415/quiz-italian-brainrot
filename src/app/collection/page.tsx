@@ -255,7 +255,7 @@ export default function Collection() {
             >
               <div className="flex flex-col h-full">
                 <div
-                  className="w-full h-[170px] flex-grow relative cursor-pointer active:scale-95 transition-transform duration-150"
+                  className="w-full h-[170px] flex-grow relative cursor-pointer transition-transform duration-150"
                   onClick={() => toggleAudio(item)}
                   title={`${item.word}の音声を${
                     currentAudioId === item.id ? "停止" : "再生"
@@ -279,7 +279,7 @@ export default function Collection() {
                   />
                 </div>
 
-                <div className="p-3 flex flex-col bg-black bg-opacity-70 backdrop-blur-sm">
+                <div className="p-3 flex flex-col bg-black bg-opacity-70 backdrop-blur-sm rounded-bl-lg rounded-br-lg">
                   <h2 className="text-lg font-bold text-white truncate">
                     {item.word}
                   </h2>
