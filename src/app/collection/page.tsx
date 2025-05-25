@@ -252,15 +252,13 @@ export default function Collection() {
                   ? "ring-4 ring-green-500 shadow-lg shadow-green-500/50"
                   : "ring-2 ring-purple-500 hover:ring-blue-400"
               }`}
+              onClick={() => toggleAudio(item)}
+              title={`${item.word}の音声を${
+                currentAudioId === item.id ? "停止" : "再生"
+              }`}
             >
               <div className="flex flex-col h-full">
-                <div
-                  className="w-full h-[170px] flex-grow relative cursor-pointer transition-transform duration-150"
-                  onClick={() => toggleAudio(item)}
-                  title={`${item.word}の音声を${
-                    currentAudioId === item.id ? "停止" : "再生"
-                  }`}
-                >
+                <div className="w-full h-[170px] flex-grow relative transition-transform duration-150">
                   <div className="relative w-full h-full">
                     <Image
                       src={item.imageUrl}
@@ -294,7 +292,7 @@ export default function Collection() {
                         e.stopPropagation(); // 親要素のクリックイベントを停止
                         toggleAudio(item);
                       }}
-                      className={`w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center shadow-lg "bg-gray-800 hover:bg-gray-700`}
+                      className="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center shadow-lg hover:bg-gray-700 active:bg-gray-900"
                       aria-label={`${item.word}の音声を${
                         currentAudioId === item.id ? "停止" : "再生"
                       }`}
