@@ -38,6 +38,12 @@ export default function Home() {
             >
               スタート
             </button>
+            <a
+              href="/collection"
+              className="text-purple-300 mt-4 px-6 py-2 border border-purple-400 rounded-full hover:bg-purple-400 hover:bg-opacity-20 hover:text-white transition-all duration-300"
+            >
+              画像コレクションを見る
+            </a>
           </div>
         </div>
       ) : (
