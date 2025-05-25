@@ -231,42 +231,46 @@ export default function Collection() {
           {filteredCollection.map((item) => (
             <div
               key={item.id}
-              className={`relative rounded-lg overflow-hidden border-4 transition-all duration-300 transform hover:scale-105 sm:border-2 md:border-4 border-gray-700 group ${
+              className={`relative rounded-lg overflow-hidden border-4 transition-all duration-300 transform hover:scale-105 sm:border-2 md:border-4 border-gray-700 group h-[220px] sm:h-[240px] ${
                 currentAudioId === item.id
                 ? "border-green-500 shadow-lg shadow-green-500/50"
                 : "hover:border-blue-400 active:scale-95"
               }`}
             >
-              <button
-                onClick={() => playAudio(item)}
-                className="w-full h-full"
-                title={`${item.word}の音声を再生`}
-              >
-                <Image
-                  src={item.imageUrl}
-                  alt={item.word}
-                  width={150}
-                  height={150}
-                  className="w-full h-[150px] object-cover object-center"
-                />
-                <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-40 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                  <span className="text-white text-3xl">🔊</span>
-                </div>
-                <audio
-                  id={`audio-${item.id}`}
-                  src={item.audioUrl}
-                  preload="none"
-                />
-              </button>
+              <div className="flex flex-col h-full">
+                <button
+                  onClick={() => playAudio(item)}
+                  className="w-full flex-grow"
+                  title={`${item.word}の音声を再生`}
+                >
+                  <div className="relative w-full h-[150px] bg-black bg-opacity-30">
+                    <Image
+                      src={item.imageUrl}
+                      alt={item.word}
+                      width={150}
+                      height={150}
+                      className="w-full h-full object-contain object-center"
+                    />
+                    <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-40 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                      <span className="text-white text-3xl">🔊</span>
+                    </div>
+                  </div>
+                  <audio
+                    id={`audio-${item.id}`}
+                    src={item.audioUrl}
+                    preload="none"
+                  />
+                </button>
 
-              <div className="p-3 flex flex-col flex-grow bg-black bg-opacity-40 backdrop-blur-sm">
-                <h2 className="text-lg font-bold text-white truncate">
-                  {item.word}
-                </h2>
-                <div className="flex justify-between items-center mt-1">
-                  <span className="bg-gradient-to-r from-pink-500 to-purple-600 text-xs text-white px-2 py-0.5 rounded-full">
-                    {item.category}
-                  </span>
+                <div className="p-3 flex flex-col bg-black bg-opacity-40 backdrop-blur-sm">
+                  <h2 className="text-lg font-bold text-white truncate">
+                    {item.word}
+                  </h2>
+                  <div className="flex justify-between items-center mt-1">
+                    <span className="bg-gradient-to-r from-pink-500 to-purple-600 text-xs text-white px-2 py-0.5 rounded-full">
+                      {item.category}
+                    </span>
+                  </div>
                 </div>
               </div>
             </div>
