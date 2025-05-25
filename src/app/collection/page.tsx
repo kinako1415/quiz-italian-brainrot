@@ -64,9 +64,12 @@ export default function Collection() {
     setFilteredCollection(filtered);
   }, [searchTerm, selectedCategory, collection]);
 
-  // 音声再生ロジック
-  const playAudio = (item: ImageCollection) => {
+  // 音声再生・停止ロジック
+  const toggleAudio = (item: ImageCollection) => {
     try {
+      // 現在再生中の音声があるか確認
+      const isPlaying = currentAudioId === item.id;
+
       // 現在再生中の音声があれば停止
       if (currentAudioId) {
         const currentAudio = document.getElementById(
@@ -75,9 +78,22 @@ export default function Collection() {
         if (currentAudio) {
           currentAudio.pause();
           currentAudio.currentTime = 0;
+
+          // BGMの音量を戻す
+          const event = new CustomEvent("adjust-bgm-volume", {
+            detail: { volume: 1.0 },
+          });
+          window.dispatchEvent(event);
+        }
+
+        // 同じアイテムの音声を停止する場合は、これ以上何もしない
+        if (isPlaying) {
+          setCurrentAudioId(null);
+          return;
         }
       }
 
+      // 新しい音声を再生
       const audio = document.getElementById(
         `audio-${item.id}`
       ) as HTMLAudioElement;
@@ -191,7 +207,7 @@ export default function Collection() {
           </p>
           {/* ステータス表示 */}
           <div className="text-white text-xs font-light animate-pulse">
-            🔊 画像をタップすると音声が再生されます
+            🔊 画像をタップすると音声の再生/停止ができます
           </div>
         </div>
 
@@ -227,49 +243,64 @@ export default function Collection() {
         </div>
 
         {/* 画像コレクショングリッド */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 px-4 pb-24 auto-rows-fr">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 px-4 pb-24 auto-rows-fr ">
           {filteredCollection.map((item) => (
             <div
               key={item.id}
-              className={`relative rounded-lg overflow-hidden transition-all duration-300 transform hover:scale-105 group ${
+              className={`relative rounded-lg overflow-hidden transition-all duration-300 transform hover:scale-105 hover:shadow-xl active:scale-98 ${
                 currentAudioId === item.id
                   ? "ring-4 ring-green-500 shadow-lg shadow-green-500/50"
-                  : "ring-4 ring-gray-700 hover:ring-blue-400 active:scale-95"
+                  : "ring-2 ring-purple-500 hover:ring-blue-400"
               }`}
             >
               <div className="flex flex-col h-full">
-                <button
-                  onClick={() => playAudio(item)}
-                  className="w-full h-[170px] flex-grow"
-                  title={`${item.word}の音声を再生`}
+                <div
+                  className="w-full h-[170px] flex-grow relative cursor-pointer active:scale-95 transition-transform duration-150"
+                  onClick={() => toggleAudio(item)}
+                  title={`${item.word}の音声を${
+                    currentAudioId === item.id ? "停止" : "再生"
+                  }`}
                 >
-                  <div className="relative w-full h-full bg-black bg-opacity-30">
+                  <div className="relative w-full h-full">
                     <Image
                       src={item.imageUrl}
                       alt={item.word}
                       fill
                       sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
-                      className="object-cover object-center"
+                      className="object-cover object-center hover:opacity-90 transition-opacity duration-200"
+                      priority
                     />
-                    <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-40 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                      <span className="text-white text-3xl">🔊</span>
-                    </div>
                   </div>
+
                   <audio
                     id={`audio-${item.id}`}
                     src={item.audioUrl}
                     preload="none"
                   />
-                </button>
+                </div>
 
-                <div className="p-3 flex flex-col flex-none bg-black bg-opacity-60 backdrop-blur-sm">
+                <div className="p-3 flex flex-col bg-black bg-opacity-70 backdrop-blur-sm">
                   <h2 className="text-lg font-bold text-white truncate">
                     {item.word}
                   </h2>
-                  <div className="flex justify-between items-center mt-1">
+                  <div className="flex items-center justify-between mt-2">
                     <span className="bg-gradient-to-r from-pink-500 to-purple-600 text-xs text-white px-2 py-0.5 rounded-full">
                       {item.category}
                     </span>
+
+                    {/* 音声再生ボタン - モバイルでも見やすく */}
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation(); // 親要素のクリックイベントを停止
+                        toggleAudio(item);
+                      }}
+                      className={`w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center shadow-lg "bg-gray-800 hover:bg-gray-700`}
+                      aria-label={`${item.word}の音声を${
+                        currentAudioId === item.id ? "停止" : "再生"
+                      }`}
+                    >
+                      {currentAudioId === item.id ? "⏹️" : "▶️"}
+                    </button>
                   </div>
                 </div>
               </div>
