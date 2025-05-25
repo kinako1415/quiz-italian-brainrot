@@ -184,7 +184,7 @@ export default function Collection() {
         <h1 className="text-5xl font-extrabold text-center text-transparent bg-clip-text bg-gradient-to-r from-pink-400 to-purple-400 drop-shadow-lg mb-6">
           Italian Brainrot Gallery
         </h1>
-        
+
         <div className="flex flex-col items-center justify-center gap-1 mb-4">
           <p className="text-white text-lg font-semibold text-center sm:text-xl md:text-2xl">
             音声付き画像コレクション
@@ -227,29 +227,29 @@ export default function Collection() {
         </div>
 
         {/* 画像コレクショングリッド */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 px-4 pb-24">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 px-4 pb-24 auto-rows-fr">
           {filteredCollection.map((item) => (
             <div
               key={item.id}
-              className={`relative rounded-lg overflow-hidden border-4 transition-all duration-300 transform hover:scale-105 sm:border-2 md:border-4 border-gray-700 group h-[220px] sm:h-[240px] ${
+              className={`relative rounded-lg overflow-hidden transition-all duration-300 transform hover:scale-105 group ${
                 currentAudioId === item.id
-                ? "border-green-500 shadow-lg shadow-green-500/50"
-                : "hover:border-blue-400 active:scale-95"
+                  ? "ring-4 ring-green-500 shadow-lg shadow-green-500/50"
+                  : "ring-4 ring-gray-700 hover:ring-blue-400 active:scale-95"
               }`}
             >
               <div className="flex flex-col h-full">
                 <button
                   onClick={() => playAudio(item)}
-                  className="w-full flex-grow"
+                  className="w-full h-[170px] flex-grow"
                   title={`${item.word}の音声を再生`}
                 >
-                  <div className="relative w-full h-[150px] bg-black bg-opacity-30">
+                  <div className="relative w-full h-full bg-black bg-opacity-30">
                     <Image
                       src={item.imageUrl}
                       alt={item.word}
-                      width={150}
-                      height={150}
-                      className="w-full h-full object-contain object-center"
+                      fill
+                      sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                      className="object-cover object-center"
                     />
                     <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-40 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                       <span className="text-white text-3xl">🔊</span>
@@ -262,7 +262,7 @@ export default function Collection() {
                   />
                 </button>
 
-                <div className="p-3 flex flex-col bg-black bg-opacity-40 backdrop-blur-sm">
+                <div className="p-3 flex flex-col flex-none bg-black bg-opacity-60 backdrop-blur-sm">
                   <h2 className="text-lg font-bold text-white truncate">
                     {item.word}
                   </h2>

@@ -13,12 +13,24 @@ export default function handler(
     const soundDir = path.join(process.cwd(), "public", "sound");
 
     // システムファイルや隠しファイルを除外
-    const imageFiles = fs.readdirSync(imageDir).filter(
-      (file) => file.endsWith('.webp') && !file.startsWith('.') && file !== '.DS_Store' && file !== '.keep'
-    );
-    const soundFiles = fs.readdirSync(soundDir).filter(
-      (file) => file.endsWith('.mp3') && !file.startsWith('.') && file !== '.DS_Store' && file !== '.keep'
-    );
+    const imageFiles = fs
+      .readdirSync(imageDir)
+      .filter(
+        (file) =>
+          file.endsWith(".webp") &&
+          !file.startsWith(".") &&
+          file !== ".DS_Store" &&
+          file !== ".keep"
+      );
+    const soundFiles = fs
+      .readdirSync(soundDir)
+      .filter(
+        (file) =>
+          file.endsWith(".mp3") &&
+          !file.startsWith(".") &&
+          file !== ".DS_Store" &&
+          file !== ".keep"
+      );
 
     // 両方に存在するファイルのみマッピング
     const collection: ImageCollection[] = imageFiles
