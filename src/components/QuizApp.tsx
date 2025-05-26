@@ -274,7 +274,7 @@ const QuizApp = ({ setStarted }: { setStarted: (value: boolean) => void }) => {
 
   if (!current) {
     return (
-      <div className="flex items-center justify-center h-screen bg-gradient-to-b">
+      <div className="h-screen bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-900 flex items-center justify-center overflow-hidden">
         <div className="flex flex-col items-center">
           <div className="loader mb-4">
             <div></div>
@@ -325,18 +325,7 @@ const QuizApp = ({ setStarted }: { setStarted: (value: boolean) => void }) => {
     );
   }
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-900 flex items-center justify-center p-4">
-      {/* BGMコントロールボタン - 左上に固定配置 */}
-      <button
-        onClick={() => {
-          audioManager.toggleBGM();
-        }}
-        className="absolute top-6 left-6 bg-white/20 backdrop-blur-md text-white p-3 rounded-full shadow-lg transition-all duration-300 hover:scale-110 hover:bg-white/30 z-50 border border-white/30"
-        aria-label="BGM再生/停止"
-      >
-        <span className="text-xl">🔊</span>
-      </button>
-
+    <div className="h-screen bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-900 flex items-center justify-center p-3 overflow-hidden">
       {/* ホームに戻るボタン - 右上に固定配置 */}
       <button
         onClick={() => {
@@ -361,41 +350,41 @@ const QuizApp = ({ setStarted }: { setStarted: (value: boolean) => void }) => {
             clearInterval(timerRef.current);
           }
         }}
-        className="absolute top-6 right-6 bg-white/20 backdrop-blur-md text-white p-3 rounded-full shadow-lg transition-all duration-300 hover:scale-110 hover:bg-white/30 z-50 border border-white/30"
+        className="absolute top-4 right-4 bg-white/20 backdrop-blur-md text-white p-2 rounded-full shadow-lg transition-all duration-300 hover:scale-110 hover:bg-white/30 z-50 border border-white/30"
         title="ホームに戻る（ゲームをリセット）"
         aria-label="ホームに戻る"
       >
-        <span className="text-xl">🏠</span>
+        <span className="text-lg">🏠</span>
       </button>
 
-      <div className="w-full max-w-lg mx-auto">
+      <div className="w-full max-w-md mx-auto">
         {/* メインコンテナ */}
-        <div className="bg-white/15 backdrop-blur-xl rounded-3xl p-6 shadow-2xl border border-white/20">
+        <div className="bg-white/15 backdrop-blur-xl rounded-3xl p-4 shadow-2xl border border-white/20">
           {/* ヘッダー */}
-          <div className="text-center mb-6">
-            <div className="flex items-center justify-between mb-4">
-              <div className="bg-white/20 backdrop-blur-md px-4 py-2 rounded-full">
-                <span className="text-white font-semibold text-sm">
+          <div className="text-center mb-4">
+            <div className="flex items-center justify-between mb-3">
+              <div className="bg-white/20 backdrop-blur-md px-3 py-1 rounded-full">
+                <span className="text-white font-semibold text-xs">
                   Question {currentQuestionIndex + 1}/{questions.length}
                 </span>
               </div>
 
               <button
                 onClick={playAudio}
-                className="bg-gradient-to-r from-pink-500 to-purple-600 text-white p-3 rounded-full shadow-lg transition-all duration-300 hover:scale-110 active:scale-95"
+                className="bg-gradient-to-r from-pink-500 to-purple-600 text-white p-2 rounded-full shadow-lg transition-all duration-300 hover:scale-110 active:scale-95"
                 title="音声をもう一度聞く"
                 aria-label="音声をもう一度再生"
               >
-                <span className="text-xl">🔊</span>
+                <span className="text-lg">🔊</span>
               </button>
             </div>
 
-            <h2 className="text-white text-xl font-semibold mb-2">
+            <h2 className="text-white text-lg font-semibold mb-2">
               Which image matches the sound?
             </h2>
 
-            <div className="bg-white/20 backdrop-blur-md px-4 py-2 rounded-full inline-block">
-              <span className="text-white text-sm">
+            <div className="bg-white/20 backdrop-blur-md px-3 py-1 rounded-full inline-block">
+              <span className="text-white text-xs">
                 ⏱️ {(elapsedTime / 1000).toFixed(1)}s
               </span>
             </div>
@@ -403,9 +392,9 @@ const QuizApp = ({ setStarted }: { setStarted: (value: boolean) => void }) => {
 
           {/* 正解/不正解表示 */}
           {selectedAnswer && (
-            <div className="text-center mb-4">
+            <div className="text-center mb-3">
               <div
-                className={`inline-block px-6 py-2 rounded-full font-semibold text-lg ${
+                className={`inline-block px-4 py-1 rounded-full font-semibold text-sm ${
                   selectedAnswer === current.correctAnswer
                     ? "bg-green-500/80 text-white"
                     : "bg-red-500/80 text-white"
@@ -419,13 +408,13 @@ const QuizApp = ({ setStarted }: { setStarted: (value: boolean) => void }) => {
           )}
 
           {/* 画像選択グリッド */}
-          <div className="grid grid-cols-2 gap-3 mb-6">
+          <div className="grid grid-cols-2 gap-2 mb-4">
             {shuffled.map((img) => (
               <button
                 key={img}
                 onClick={() => handleSelect(img)}
                 disabled={!!selectedAnswer}
-                className={`relative rounded-2xl overflow-hidden aspect-square transition-all duration-300 border-2 ${
+                className={`relative rounded-xl overflow-hidden aspect-square transition-all duration-300 border-2 ${
                   selectedAnswer
                     ? img === current.correctAnswer
                       ? "border-green-500 bg-green-500/20 scale-105"
@@ -446,7 +435,7 @@ const QuizApp = ({ setStarted }: { setStarted: (value: boolean) => void }) => {
                 {/* 選択インジケーター */}
                 {selectedAnswer && img === current.correctAnswer && (
                   <div className="absolute inset-0 bg-green-500/30 flex items-center justify-center">
-                    <span className="text-white text-2xl font-bold">✓</span>
+                    <span className="text-white text-xl font-bold">✓</span>
                   </div>
                 )}
 
@@ -454,7 +443,7 @@ const QuizApp = ({ setStarted }: { setStarted: (value: boolean) => void }) => {
                   selectedAnswer === img &&
                   img !== current.correctAnswer && (
                     <div className="absolute inset-0 bg-red-500/30 flex items-center justify-center">
-                      <span className="text-white text-2xl font-bold">✗</span>
+                      <span className="text-white text-xl font-bold">✗</span>
                     </div>
                   )}
               </button>
@@ -465,7 +454,7 @@ const QuizApp = ({ setStarted }: { setStarted: (value: boolean) => void }) => {
           <button
             onClick={handleNext}
             disabled={!selectedAnswer}
-            className={`w-full py-4 px-6 rounded-2xl font-semibold text-lg transition-all duration-300 ${
+            className={`w-full py-3 px-4 rounded-xl font-semibold text-base transition-all duration-300 ${
               selectedAnswer
                 ? "bg-gradient-to-r from-pink-500 to-purple-600 text-white shadow-lg hover:scale-[1.02] active:scale-95"
                 : "bg-white/20 text-white/50 cursor-not-allowed"
