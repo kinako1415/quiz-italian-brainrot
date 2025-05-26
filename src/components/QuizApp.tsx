@@ -245,8 +245,8 @@ const QuizApp = ({ setStarted }: { setStarted: (value: boolean) => void }) => {
       if (audioElement.readyState < 2) {
         audioElement.load();
         await new Promise((resolve, reject) => {
-          audioElement.addEventListener('canplay', resolve, { once: true });
-          audioElement.addEventListener('error', reject, { once: true });
+          audioElement.addEventListener("canplay", resolve, { once: true });
+          audioElement.addEventListener("error", reject, { once: true });
         });
       }
 
@@ -378,9 +378,8 @@ const QuizApp = ({ setStarted }: { setStarted: (value: boolean) => void }) => {
       </div>
     );
   }
-
   return (
-    <div className="flex flex-col items-center justify-center h-screen gap-4 p-4 bg-gradient-to-b rounded-lg shadow-xl fixed top-0 left-0 right-0 bottom-0 backdrop-blur-md sm:p-6 md:p-8">
+    <div className="min-h-screen bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-900 flex items-center justify-center p-4">
       {/* BGMコントロールボタン - 左上に固定配置 */}
       <button
         onClick={() => {
@@ -388,23 +387,24 @@ const QuizApp = ({ setStarted }: { setStarted: (value: boolean) => void }) => {
           const event = new CustomEvent("toggle-bgm");
           window.dispatchEvent(event);
         }}
-        className="absolute top-4 left-4 bg-black bg-opacity-50 text-white p-2 rounded-full shadow-lg transition-all duration-300 hover:scale-105 z-50"
+        className="absolute top-6 left-6 bg-white/20 backdrop-blur-md text-white p-3 rounded-full shadow-lg transition-all duration-300 hover:scale-110 hover:bg-white/30 z-50 border border-white/30"
         aria-label="BGM再生/停止"
       >
-        🔊
+        <span className="text-xl">🔊</span>
       </button>
 
       {/* ホームに戻るボタン - 右上に固定配置 */}
-      <button        onClick={() => {
+      <button
+        onClick={() => {
           // 現在再生中の音声があれば停止
           if (audioRef.current && !audioRef.current.paused) {
             audioRef.current.pause();
             audioRef.current.currentTime = 0;
           }
-          
+
           // BGMの音量を戻す
           adjustBgmVolume(1.0);
-          
+
           // クイズの状態をリセット
           setStarted(false);
           setCurrentQuestionIndex(0);
@@ -413,87 +413,128 @@ const QuizApp = ({ setStarted }: { setStarted: (value: boolean) => void }) => {
           setGameStatus("ready");
           setTotalElapsedTime(0);
           setElapsedTime(0);
-          
+
           // タイマーを停止
           if (timerRef.current) {
             clearInterval(timerRef.current);
           }
         }}
-        className="absolute top-4 right-4 bg-gradient-to-r from-pink-700 to-purple-700 text-white p-3 rounded-full shadow-lg transition-all duration-300 hover:scale-105 hover:shadow-pink-500/30 hover:shadow-xl z-50 backdrop-blur-md border border-pink-600/30"
+        className="absolute top-6 right-6 bg-white/20 backdrop-blur-md text-white p-3 rounded-full shadow-lg transition-all duration-300 hover:scale-110 hover:bg-white/30 z-50 border border-white/30"
         title="ホームに戻る（ゲームをリセット）"
         aria-label="ホームに戻る"
       >
-        🏠
+        <span className="text-xl">🏠</span>
       </button>
 
-      {selectedAnswer && (
-        <div className="text-white mt-2 text-lg font-bold text-center fixed sm:text-xl z-50 top-[10%] transform -translate-y-1/2 md:text-2xl">
-          {selectedAnswer === current.correctAnswer ? "正解！" : "不正解..."}
-        </div>
-      )}
-      <div className="flex flex-col items-center justify-center gap-1">
-        <p className="text-white text-lg font-semibold text-center sm:text-xl md:text-2xl">
-          kore wa nani no oto desu ka?
-        </p>
-        {/* 音声自動再生の状態を表示 */}
-        <div className="text-white text-xs font-light animate-pulse">
-          🔊 現在の問題数は29個
-        </div>
-      </div>
-      <div className="flex items-center justify-center gap-2 text-white text-sm font-medium sm:gap-4 md:gap-6">
-        <span className="bg-gray-700 text-green-400 px-3 py-1 rounded-full shadow-md sm:px-4 sm:py-2 md:px-5 md:py-3">
-          ⏱️ {(elapsedTime / 1000).toFixed(2)} 秒
-        </span>
-        <button
-          onClick={playAudio}
-          disabled={false}
-          className="bg-gray-600 text-white px-3 py-1 rounded-full shadow-md hover:bg-gray-500 transition-all duration-300 sm:px-4 sm:py-2 md:px-5 md:py-3 flex items-center gap-1"
-          title="音声をもう一度聞く"
-          aria-label="音声をもう一度再生"
-        >
-          <span role="img" aria-hidden="true">
-            🔊
-          </span>{" "}
-          <span className="text-xs sm:text-sm">もう一度聞く</span>
-        </button>
-      </div>
-      <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4">
-        {shuffled.map((img) => (
+      <div className="w-full max-w-lg mx-auto">
+        {/* メインコンテナ */}
+        <div className="bg-white/15 backdrop-blur-xl rounded-3xl p-6 shadow-2xl border border-white/20">
+          {/* ヘッダー */}
+          <div className="text-center mb-6">
+            <div className="flex items-center justify-between mb-4">
+              <div className="bg-white/20 backdrop-blur-md px-4 py-2 rounded-full">
+                <span className="text-white font-semibold text-sm">
+                  Question {currentQuestionIndex + 1}/{questions.length}
+                </span>
+              </div>
+
+              <button
+                onClick={playAudio}
+                className="bg-gradient-to-r from-pink-500 to-purple-600 text-white p-3 rounded-full shadow-lg transition-all duration-300 hover:scale-110 active:scale-95"
+                title="音声をもう一度聞く"
+                aria-label="音声をもう一度再生"
+              >
+                <span className="text-xl">🔊</span>
+              </button>
+            </div>
+
+            <h2 className="text-white text-xl font-semibold mb-2">
+              Which image matches the sound?
+            </h2>
+
+            <div className="bg-white/20 backdrop-blur-md px-4 py-2 rounded-full inline-block">
+              <span className="text-white text-sm">
+                ⏱️ {(elapsedTime / 1000).toFixed(1)}s
+              </span>
+            </div>
+          </div>
+
+          {/* 正解/不正解表示 */}
+          {selectedAnswer && (
+            <div className="text-center mb-4">
+              <div
+                className={`inline-block px-6 py-2 rounded-full font-semibold text-lg ${
+                  selectedAnswer === current.correctAnswer
+                    ? "bg-green-500/80 text-white"
+                    : "bg-red-500/80 text-white"
+                }`}
+              >
+                {selectedAnswer === current.correctAnswer
+                  ? "Correct! ✓"
+                  : "Wrong! ✗"}
+              </div>
+            </div>
+          )}
+
+          {/* 画像選択グリッド */}
+          <div className="grid grid-cols-2 gap-3 mb-6">
+            {shuffled.map((img) => (
+              <button
+                key={img}
+                onClick={() => handleSelect(img)}
+                disabled={!!selectedAnswer}
+                className={`relative rounded-2xl overflow-hidden aspect-square transition-all duration-300 border-2 ${
+                  selectedAnswer
+                    ? img === current.correctAnswer
+                      ? "border-green-500 bg-green-500/20 scale-105"
+                      : selectedAnswer === img
+                      ? "border-red-500 bg-red-500/20 scale-95"
+                      : "border-white/30 opacity-60"
+                    : "border-white/30 hover:border-white/60 hover:scale-105 active:scale-95"
+                }`}
+              >
+                <Image
+                  src={"/img/" + img}
+                  alt={"選択肢"}
+                  fill
+                  className="object-cover"
+                  sizes="(max-width: 768px) 50vw, 25vw"
+                />
+
+                {/* 選択インジケーター */}
+                {selectedAnswer && img === current.correctAnswer && (
+                  <div className="absolute inset-0 bg-green-500/30 flex items-center justify-center">
+                    <span className="text-white text-2xl font-bold">✓</span>
+                  </div>
+                )}
+
+                {selectedAnswer &&
+                  selectedAnswer === img &&
+                  img !== current.correctAnswer && (
+                    <div className="absolute inset-0 bg-red-500/30 flex items-center justify-center">
+                      <span className="text-white text-2xl font-bold">✗</span>
+                    </div>
+                  )}
+              </button>
+            ))}
+          </div>
+
+          {/* Next ボタン */}
           <button
-            key={img}
-            onClick={() => handleSelect(img)}
-            disabled={!!selectedAnswer}
-            className={`relative rounded-lg overflow-hidden border-4 transition-all duration-300 transform hover:scale-105 sm:border-2 md:border-4 ${
+            onClick={handleNext}
+            disabled={!selectedAnswer}
+            className={`w-full py-4 px-6 rounded-2xl font-semibold text-lg transition-all duration-300 ${
               selectedAnswer
-                ? img === current.correctAnswer
-                  ? "border-green-500 shadow-lg shadow-green-500/50"
-                  : selectedAnswer === img
-                  ? "border-red-500 shadow-lg shadow-red-500/50"
-                  : "border-gray-700 opacity-70"
-                : "border-gray-700 hover:border-blue-400 active:scale-95"
+                ? "bg-gradient-to-r from-pink-500 to-purple-600 text-white shadow-lg hover:scale-[1.02] active:scale-95"
+                : "bg-white/20 text-white/50 cursor-not-allowed"
             }`}
           >
-            <Image
-              src={"/img/" + img}
-              alt={"選択肢"}
-              width={150}
-              height={150}
-              className="object-cover w-[150px] h-[150px]"
-            />
+            {currentQuestionIndex < questions.length - 1
+              ? "Next Question"
+              : "Finish"}
           </button>
-        ))}
+        </div>
       </div>
-      <button
-        onClick={handleNext}
-        disabled={!selectedAnswer} // 回答が選択されていない場合は無効化
-        className={`mt-2 px-4 py-2 rounded-full shadow-lg transition-all duration-300 transform sm:px-6 sm:py-3 md:px-8 md:py-4 ${
-          selectedAnswer
-            ? "bg-blue-500 text-white hover:bg-blue-600 hover:scale-105"
-            : "bg-gray-400 text-gray-200 cursor-not-allowed"
-        }`}
-      >
-        次へ
-      </button>
     </div>
   );
 };

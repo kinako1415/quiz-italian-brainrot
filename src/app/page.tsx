@@ -16,43 +16,53 @@ export default function Home() {
   }, [started, stop]);
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-gray-900 via-purple-900 to-black p-8 relative overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-900 flex items-center justify-center p-4">
       {/* BGMコントロールボタン - 左上に固定配置 */}
       <button
         onClick={toggle}
-        className="absolute top-4 left-4 bg-gradient-to-r from-purple-800 to-purple-700 text-white p-3 rounded-full shadow-lg transition-all duration-300 hover:scale-105 hover:shadow-purple-500/30 hover:shadow-xl z-50 backdrop-blur-md border border-purple-600/30"
+        className="absolute top-6 left-6 bg-white/20 backdrop-blur-md text-white p-3 rounded-full shadow-lg transition-all duration-300 hover:scale-110 hover:bg-white/30 z-50 border border-white/30"
         aria-label={isPlaying ? "BGMを停止" : "BGMを再生"}
       >
-        <span
-          className={isPlaying ? "animate-pulse inline-block" : "inline-block"}
-        >
-          {isPlaying ? "🔊" : "🔇"}
-        </span>
+        <span className="text-xl">{isPlaying ? "🔊" : "🔇"}</span>
       </button>
 
       {!started ? (
-        <div className="flex flex-col items-center gap-8 z-10 max-w-7xl w-full px-4">
-          {/* 背景効果付きのヘッダー */}
-          <div className="relative mb-10 mt-12">
-            {/* メインタイトル */}
-            <h1 className="text-5xl md:text-6xl lg:text-7xl font-black text-center text-transparent bg-clip-text bg-gradient-to-r from-pink-400 via-purple-500 to-purple-400 drop-shadow-lg mb-3 tracking-tight">
-              Italian Brainrot Pro
-            </h1>
-          </div>
+        <div className="w-full max-w-lg mx-auto">
+          {/* メインコンテナ */}
+          <div className="bg-white/15 backdrop-blur-xl rounded-3xl p-8 shadow-2xl border border-white/20">
+            {/* ヘッダー */}
+            <div className="text-center mb-8">
+              <h1 className="text-4xl font-bold text-white mb-3">
+                Italian Brainrot
+              </h1>
+              <p className="text-white/80 text-lg">
+                Test your brain with Italian sounds!
+              </p>
+            </div>
 
-          <div className="flex flex-col items-center gap-6 mt-6 w-full">
-            <button
-              onClick={() => setStarted(true)}
-              className="bg-gradient-to-r from-pink-500 to-purple-600 text-white px-10 py-4 rounded-full shadow-lg transition-all duration-300 text-lg md:text-xl font-bold transform hover:scale-105 hover:shadow-xl"
-            >
-              クイズをスタート
-            </button>
-            <a
-              href="/collection"
-              className="bg-gradient-to-r from-purple-700 to-purple-800 text-white px-8 py-3 rounded-full shadow-lg transition-all duration-300 border border-purple-500/30 backdrop-blur-sm hover:shadow-purple-500/20 hover:shadow-lg"
-            >
-              画像コレクションを見る
-            </a>
+            {/* ボタンエリア */}
+            <div className="space-y-4">
+              <button
+                onClick={() => setStarted(true)}
+                className="w-full bg-gradient-to-r from-pink-500 to-purple-600 text-white py-5 px-6 rounded-2xl font-bold text-xl shadow-lg transition-all duration-300 hover:scale-[1.02] hover:shadow-xl active:scale-95"
+              >
+                Start Quiz
+              </button>
+
+              <a
+                href="/collection"
+                className="block w-full bg-white/20 backdrop-blur-md text-white py-5 px-6 rounded-2xl font-bold text-xl text-center shadow-lg transition-all duration-300 hover:scale-[1.02] hover:bg-white/30 active:scale-95 border border-white/30"
+              >
+                View Gallery
+              </a>
+            </div>
+
+            {/* フッター情報 */}
+            <div className="mt-8 text-center">
+              <p className="text-white/70 text-sm">
+                Choose the correct image from the sound
+              </p>
+            </div>
           </div>
         </div>
       ) : (

@@ -105,7 +105,7 @@ export default function Collection() {
         if (audio.readyState < 2) {
           audio.load();
           await new Promise((resolve) => {
-            audio.addEventListener('canplay', resolve, { once: true });
+            audio.addEventListener("canplay", resolve, { once: true });
           });
         }
 
@@ -154,223 +154,231 @@ export default function Collection() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-screen bg-gradient-to-br from-gray-900 via-purple-900 to-black">
-        <div className="flex flex-col items-center">
-          <div className="loader mb-4">
-            <div></div>
-            <div></div>
-            <div></div>
-            <div></div>
+      <div className="min-h-screen bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-900 flex items-center justify-center p-4">
+        <div className="bg-white/15 backdrop-blur-xl rounded-3xl p-12 text-center shadow-2xl border border-white/20 max-w-md mx-auto">
+          <div className="flex justify-center mb-6">
+            <div className="relative">
+              <div className="animate-spin rounded-full h-16 w-16 border-4 border-white/30 border-t-white"></div>
+              <div className="absolute inset-0 flex items-center justify-center">
+                <span className="text-2xl">🖼️</span>
+              </div>
+            </div>
           </div>
-          <p className="text-white text-lg font-semibold animate-pulse">
-            読み込み中...
+          <h2 className="text-white text-2xl font-bold mb-2">
+            Loading Gallery
+          </h2>
+          <p className="text-white/70 text-lg">
+            Preparing your image collection...
           </p>
         </div>
-        <style jsx>{`
-          .loader {
-            display: flex;
-            justify-content: space-around;
-            width: 80px;
-            height: 80px;
-            position: relative;
-          }
-          .loader div {
-            width: 16px;
-            height: 16px;
-            background-color: #ffffff;
-            border-radius: 50%;
-            animation: loader-animation 1.2s infinite ease-in-out;
-          }
-          .loader div:nth-child(1) {
-            animation-delay: -0.24s;
-          }
-          .loader div:nth-child(2) {
-            animation-delay: -0.12s;
-          }
-          .loader div:nth-child(3) {
-            animation-delay: 0;
-          }
-          @keyframes loader-animation {
-            0%,
-            80%,
-            100% {
-              transform: scale(0);
-            }
-            40% {
-              transform: scale(1);
-            }
-          }
-        `}</style>
       </div>
     );
   }
 
   return (
-    <div className="flex flex-col items-center h-screen gap-4 p-4 bg-gradient-to-br from-gray-900 via-purple-900 to-black rounded-lg shadow-xl fixed top-0 left-0 right-0 bottom-0 backdrop-blur-md overflow-y-auto sm:p-6 md:p-8">
-      {/* BGMコントロールボタン - 左上に固定配置 */}
-      <button
-        onClick={toggleBgm}
-        className="absolute top-4 left-4 bg-gradient-to-r from-purple-800 to-purple-700 text-white p-3 rounded-full shadow-lg transition-all duration-300 hover:scale-105 hover:shadow-purple-500/30 hover:shadow-xl z-50 backdrop-blur-md border border-purple-600/30"
-        aria-label="BGM再生/停止"
-      >
-        <span className="animate-pulse inline-block">🔊</span>
-      </button>
+    <div className="min-h-screen bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-900 p-4 sm:p-6 md:p-8">
+      {/* Control Buttons */}
+      <div className="fixed top-6 left-6 z-50">
+        <button
+          onClick={toggleBgm}
+          className="bg-white/15 backdrop-blur-xl text-white p-3 rounded-full shadow-lg transition-all duration-300 hover:scale-105 border border-white/20"
+          aria-label="BGM再生/停止"
+        >
+          <span className="animate-pulse inline-block">🔊</span>
+        </button>
+      </div>
 
-      {/* ホームに戻るリンク */}
-      <Link
-        href="/"
-        onClick={() => {
-          // 現在再生中の音声があれば停止
-          if (currentAudioId) {
-            const currentAudio = document.getElementById(
-              `audio-${currentAudioId}`
-            ) as HTMLAudioElement;
-            if (currentAudio && !currentAudio.paused) {
-              currentAudio.pause();
-              currentAudio.currentTime = 0;
+      <div className="fixed top-6 right-6 z-50">
+        <Link
+          href="/"
+          onClick={() => {
+            // 現在再生中の音声があれば停止
+            if (currentAudioId) {
+              const currentAudio = document.getElementById(
+                `audio-${currentAudioId}`
+              ) as HTMLAudioElement;
+              if (currentAudio && !currentAudio.paused) {
+                currentAudio.pause();
+                currentAudio.currentTime = 0;
+              }
+              setCurrentAudioId(null);
             }
-            setCurrentAudioId(null);
-          }
-          
-          // BGMの音量を戻す
-          const event = new CustomEvent("adjust-bgm-volume", {
-            detail: { volume: 1.0 },
-          });
-          window.dispatchEvent(event);
-        }}
-        className="absolute top-4 right-4 bg-gradient-to-r from-pink-700 to-purple-700 text-white p-3 rounded-full shadow-lg transition-all duration-300 hover:scale-105 hover:shadow-pink-500/30 hover:shadow-xl z-50 backdrop-blur-md border border-pink-600/30"
-        title="ホームに戻る（再生状態をリセット）"
-      >
-        🏠
-      </Link>
 
-      <div className="w-full max-w-7xl mx-auto mt-12">
-        {/* 背景効果付きのヘッダー */}
-        <div className="relative mb-10">
-          {/* メインタイトル */}
-          <h1 className="text-5xl md:text-6xl lg:text-7xl font-black text-center text-transparent bg-clip-text bg-gradient-to-r from-pink-400 via-purple-500 to-purple-400 drop-shadow-lg mb-2 tracking-tight">
-            Italian Brainrot Gallery
-          </h1>
+            // BGMの音量を戻す
+            const event = new CustomEvent("adjust-bgm-volume", {
+              detail: { volume: 1.0 },
+            });
+            window.dispatchEvent(event);
+          }}
+          className="bg-white/15 backdrop-blur-xl text-white p-3 rounded-full shadow-lg transition-all duration-300 hover:scale-105 border border-white/20"
+          title="ホームに戻る（再生状態をリセット）"
+        >
+          🏠
+        </Link>
+      </div>
 
-          {/* ステータス表示 */}
-          <div className="flex items-center justify-center gap-2 mt-3">
-            <span className=" bg-opacity-30 backdrop-blur-sm rounded-full px-4 py-1 flex items-center">
-              <span className="text-green-400 mr-1 animate-pulse">🔊</span>
-              <span className="text-white text-sm font-medium">
-                画像をタップすると音声の再生/停止ができます
-              </span>
-            </span>
-          </div>
-        </div>
+      {/* Main Gallery Container */}
+      <div className="max-w-7xl mx-auto pt-20">
+        {/* Main Gallery Card - Unified Design */}
+        <div className="bg-white/15 backdrop-blur-xl rounded-3xl p-8 shadow-2xl border border-white/20">
+          {/* Gallery Header */}
+          <div className="text-center mb-8">
+            <h1 className="text-5xl md:text-6xl font-bold text-white mb-4">
+              🖼️ Gallery
+            </h1>
+            <p className="text-white/80 text-xl mb-6">
+              Tap images to play audio
+            </p>
 
-        {/* 検索とフィルター */}
-        <div className="flex flex-col md:flex-row justify-between items-center mb-8 gap-4 px-4">
-          <div className="w-full md:w-1/2">
-            <input
-              type="text"
-              placeholder="検索..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full px-4 py-2 rounded-full shadow-lg border-2 border-purple-400 backdrop-blur-md text-white placeholder-gray-300 focus:border-pink-400 focus:outline-none transition-colors duration-300"
-            />
-          </div>
-
-          <div className="w-full md:w-1/3">
-            <select
-              value={selectedCategory}
-              onChange={(e) => setSelectedCategory(e.target.value)}
-              className="w-full px-4 py-2 rounded-full shadow-lg border-2 border-purple-400 bg-opacity-10 backdrop-blur-md text-white focus:border-pink-400 focus:outline-none transition-colors duration-300"
-            >
-              {categories.map((category) => (
-                <option
-                  key={category}
-                  value={category}
-                  className="bg-purple-900"
+            {/* Search and Filter Controls */}
+            <div className="flex flex-col lg:flex-row gap-4 max-w-4xl mx-auto">
+              <div className="flex-1">
+                <div className="relative">
+                  <input
+                    type="text"
+                    placeholder="🔍 Search words..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="w-full px-6 py-4 rounded-2xl bg-white/20 backdrop-blur-xl text-white placeholder-white/60 border border-white/30 focus:border-white/50 focus:outline-none transition-all duration-300 text-lg"
+                  />
+                </div>
+              </div>
+              <div className="lg:w-1/3">
+                <select
+                  value={selectedCategory}
+                  onChange={(e) => setSelectedCategory(e.target.value)}
+                  className="w-full px-6 py-4 rounded-2xl bg-white/20 backdrop-blur-xl text-white border border-white/30 focus:border-white/50 focus:outline-none transition-all duration-300 text-lg"
                 >
-                  {category}
-                </option>
-              ))}
-            </select>
+                  {categories.map((category) => (
+                    <option
+                      key={category}
+                      value={category}
+                      className="bg-purple-900 text-white"
+                    >
+                      📂 {category}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
           </div>
-        </div>
 
-        {/* 画像コレクショングリッド */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 px-4 pb-24 auto-rows-fr ">
-          {filteredCollection.map((item) => (
-            <div
-              key={item.id}
-              className={`relative rounded-lg overflow-hidden transition-all duration-300 transform hover:scale-105 hover:shadow-xl active:scale-98 ${
-                currentAudioId === item.id
-                  ? "ring-4 ring-green-500 shadow-lg shadow-green-500/50"
-                  : "ring-2 ring-purple-500 hover:ring-blue-400"
-              }`}
-              onClick={() => toggleAudio(item)}
-              title={`${item.word}の音声を${
-                currentAudioId === item.id ? "停止" : "再生"
-              }`}
-            >
-              <div className="flex flex-col h-full">
-                <div className="w-full h-[170px] flex-grow relative transition-transform duration-150">
-                  <div className="relative w-full h-full">
+          {/* Results Count */}
+          {searchTerm && (
+            <div className="text-center mb-6">
+              <p className="text-white/70 text-lg">
+                Found {filteredCollection.length} results for "{searchTerm}"
+              </p>
+            </div>
+          )}
+
+          {/* Gallery Grid */}
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-6 mb-8">
+            {filteredCollection.map((item) => (
+              <div
+                key={item.id}
+                className={`relative group cursor-pointer transition-all duration-300 transform hover:scale-105 hover:-translate-y-2 ${
+                  currentAudioId === item.id
+                    ? "ring-4 ring-green-400 shadow-2xl shadow-green-400/50 scale-105"
+                    : "hover:shadow-2xl"
+                }`}
+                onClick={() => toggleAudio(item)}
+                title={`${item.word}の音声を${
+                  currentAudioId === item.id ? "停止" : "再生"
+                }`}
+              >
+                <div className="bg-white/20 backdrop-blur-xl rounded-2xl overflow-hidden shadow-xl border border-white/30 h-full transition-all duration-300 group-hover:bg-white/25">
+                  <div className="aspect-square relative">
                     <Image
                       src={item.imageUrl}
                       alt={item.word}
                       fill
-                      sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
-                      className="object-cover object-center hover:opacity-90 transition-opacity duration-200"
+                      sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, (max-width: 1024px) 25vw, (max-width: 1280px) 20vw, 16vw"
+                      className="object-cover transition-transform duration-300 group-hover:scale-110"
                       priority
                     />
+
+                    {/* Play/Pause Overlay */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                      <div className="bg-white/30 backdrop-blur-xl rounded-full p-4 transform scale-75 group-hover:scale-100 transition-transform duration-300">
+                        <span className="text-2xl">
+                          {currentAudioId === item.id ? "⏹️" : "▶️"}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Playing Indicator */}
+                    {currentAudioId === item.id && (
+                      <div className="absolute top-3 right-3 bg-green-500 rounded-full p-2 animate-pulse shadow-lg">
+                        <div className="w-3 h-3 bg-white rounded-full"></div>
+                      </div>
+                    )}
+
+                    {/* Category Badge */}
+                    <div className="absolute top-3 left-3 bg-purple-600/80 backdrop-blur-xl rounded-full px-3 py-1">
+                      <span className="text-white text-xs font-semibold">
+                        {item.category}
+                      </span>
+                    </div>
                   </div>
 
-                  <audio
-                    id={`audio-${item.id}`}
-                    src={item.audioUrl}
-                    preload="none"
-                  />
-                </div>
-
-                <div className="p-3 flex flex-col bg-black bg-opacity-70 backdrop-blur-sm rounded-bl-lg rounded-br-lg">
-                  <h2 className="text-lg font-bold text-white truncate">
-                    {item.word}
-                  </h2>
-                  <div className="flex items-center justify-between mt-2">
-                    <span className="bg-gradient-to-r from-pink-500 to-purple-600 text-xs text-white px-2 py-0.5 rounded-full">
-                      {item.category}
-                    </span>
-
-                    {/* 音声再生ボタン - モバイルでも見やすく */}
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation(); // 親要素のクリックイベントを停止
-                        toggleAudio(item);
-                      }}
-                      className="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center shadow-lg hover:bg-gray-700 active:bg-gray-900"
-                      aria-label={`${item.word}の音声を${
-                        currentAudioId === item.id ? "停止" : "再生"
-                      }`}
-                    >
-                      {currentAudioId === item.id ? "⏹️" : "▶️"}
-                    </button>
+                  <div className="p-4">
+                    <h3 className="text-white font-bold text-base text-center truncate mb-1">
+                      {item.word}
+                    </h3>
+                    <div className="flex items-center justify-center gap-2">
+                      <div className="w-2 h-2 bg-white/60 rounded-full"></div>
+                      <p className="text-white/60 text-sm text-center">
+                        Audio Available
+                      </p>
+                      <div className="w-2 h-2 bg-white/60 rounded-full"></div>
+                    </div>
                   </div>
                 </div>
+
+                <audio
+                  id={`audio-${item.id}`}
+                  src={item.audioUrl}
+                  preload="none"
+                />
               </div>
-            </div>
-          ))}
-        </div>
-
-        {filteredCollection.length === 0 && (
-          <div className="text-center text-white text-xl mt-10">
-            該当する画像が見つかりませんでした。
+            ))}
           </div>
-        )}
 
-        <div className="text-center mt-10 mb-6">
-          <Link
-            href="/"
-            className="bg-gradient-to-r from-pink-400 to-purple-400 text-white px-8 py-3 rounded-full shadow-lg transition-all duration-300 text-lg transform hover:scale-105"
-          >
-            クイズに戻る
-          </Link>
+          {/* No Results Message */}
+          {filteredCollection.length === 0 && (
+            <div className="text-center py-16">
+              <div className="text-6xl mb-4">🔍</div>
+              <h3 className="text-white text-2xl font-bold mb-2">
+                No matching images found
+              </h3>
+              <p className="text-white/70 text-lg mb-6">
+                Try adjusting your search terms or category filter
+              </p>
+              <button
+                onClick={() => {
+                  setSearchTerm("");
+                  setSelectedCategory("すべて");
+                }}
+                className="bg-gradient-to-r from-purple-600 to-pink-600 text-white px-6 py-3 rounded-2xl shadow-lg transition-all duration-300 hover:scale-105 font-semibold"
+              >
+                Clear Filters
+              </button>
+            </div>
+          )}
+
+          {/* Footer Actions */}
+          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center pt-8 border-t border-white/20">
+            <div className="text-white/70 text-lg font-semibold">
+              {filteredCollection.length} / {collection.length} items
+            </div>
+            <Link
+              href="/"
+              className="bg-gradient-to-r from-purple-600 to-pink-600 text-white px-8 py-4 rounded-2xl shadow-lg transition-all duration-300 hover:scale-105 hover:shadow-2xl font-bold text-lg"
+            >
+              🏠 Back to Home
+            </Link>
+          </div>
         </div>
       </div>
     </div>
