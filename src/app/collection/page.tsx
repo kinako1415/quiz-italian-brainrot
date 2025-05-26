@@ -267,7 +267,7 @@ export default function Collection() {
           {searchTerm && (
             <div className="text-center mb-6">
               <p className="text-white/70 text-lg">
-                Found {filteredCollection.length} results for "{searchTerm}"
+                Found {filteredCollection.length} results for &ldquo;{searchTerm}&rdquo;
               </p>
             </div>
           )}
