@@ -182,32 +182,41 @@ export default function Collection() {
       {/* BGMコントロールボタン - 左上に固定配置 */}
       <button
         onClick={toggleBgm}
-        className="absolute top-4 left-4 bg-black bg-opacity-50 text-white p-2 rounded-full shadow-lg transition-all duration-300 hover:scale-105 z-50"
+        className="absolute top-4 left-4 bg-gradient-to-r from-purple-800 to-purple-700 text-white p-3 rounded-full shadow-lg transition-all duration-300 hover:scale-105 hover:shadow-purple-500/30 hover:shadow-xl z-50 backdrop-blur-md border border-purple-600/30"
         aria-label="BGM再生/停止"
       >
-        🔊
+        <span className="animate-pulse inline-block">🔊</span>
       </button>
 
       {/* ホームに戻るリンク */}
       <Link
         href="/"
-        className="absolute top-4 right-4 bg-black bg-opacity-50 text-white p-2 rounded-full shadow-lg transition-all duration-300 hover:scale-105 z-50"
+        className="absolute top-4 right-4 bg-gradient-to-r from-pink-700 to-purple-700 text-white p-3 rounded-full shadow-lg transition-all duration-300 hover:scale-105 hover:shadow-pink-500/30 hover:shadow-xl z-50 backdrop-blur-md border border-pink-600/30"
       >
         🏠
       </Link>
 
       <div className="w-full max-w-7xl mx-auto mt-12">
-        <h1 className="text-5xl font-extrabold text-center text-transparent bg-clip-text bg-gradient-to-r from-pink-400 to-purple-400 drop-shadow-lg mb-6">
-          Italian Brainrot Gallery
-        </h1>
+        {/* 背景効果付きのヘッダー */}
+        <div className="relative mb-10">
+          {/* メインタイトル */}
+          <h1 className="text-5xl md:text-6xl lg:text-7xl font-black text-center text-transparent bg-clip-text bg-gradient-to-r from-pink-400 via-purple-500 to-purple-400 drop-shadow-lg mb-2 tracking-tight">
+            Italian Brainrot Gallery
+          </h1>
 
-        <div className="flex flex-col items-center justify-center gap-1 mb-4">
-          <p className="text-white text-lg font-semibold text-center sm:text-xl md:text-2xl">
+          {/* サブタイトル */}
+          <p className="text-white text-lg font-semibold text-center sm:text-xl md:text-2xl max-w-3xl mx-auto bg-gradient-to-r from-purple-400/10 via-pink-500/20 to-purple-400/10 py-2 px-4 rounded-full backdrop-blur-sm">
             音声付き画像コレクション
           </p>
+
           {/* ステータス表示 */}
-          <div className="text-white text-xs font-light animate-pulse">
-            🔊 画像をタップすると音声の再生/停止ができます
+          <div className="flex items-center justify-center gap-2 mt-3">
+            <span className="bg-black bg-opacity-30 backdrop-blur-sm rounded-full px-4 py-1 flex items-center">
+              <span className="text-green-400 mr-1 animate-pulse">🔊</span>
+              <span className="text-white text-sm font-medium">
+                画像をタップすると音声の再生/停止ができます
+              </span>
+            </span>
           </div>
         </div>
 
