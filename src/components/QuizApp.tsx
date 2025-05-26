@@ -38,8 +38,9 @@ const QuizApp = ({ setStarted }: { setStarted: (value: boolean) => void }) => {
 
   // 問題データの読み込み
   useEffect(() => {
-    // 他の音声を停止
+    // 他の音声を停止し、BGMも停止（クイズ開始時）
     audioManager.stopAll();
+    audioManager.stopBGM();
 
     // ブラウザのオーディオ再生ポリシー対応のため、ユーザーインタラクション時に一度オーディオコンテキストを開始する
     const setupAudioContext = () => {
@@ -241,9 +242,15 @@ const QuizApp = ({ setStarted }: { setStarted: (value: boolean) => void }) => {
     }
   }, [current, playAudio]);
 
+  // ゲームステータスに応じたBGM制御
   React.useEffect(() => {
-    if (gameStatus === "finished") {
+    if (gameStatus === "playing") {
+      // クイズ問題が開始されたらBGMを停止
+      audioManager.stopBGM();
+    } else if (gameStatus === "finished") {
+      // ゲーム終了時もBGMを停止し、全ての音声効果を停止
       audioManager.stopAll();
+      audioManager.stopBGM();
     }
   }, [gameStatus, audioManager]);
 
@@ -335,8 +342,9 @@ const QuizApp = ({ setStarted }: { setStarted: (value: boolean) => void }) => {
         onClick={() => {
           // 現在再生中の音声があれば停止
           audioManager.stopAll();
+          audioManager.stopBGM();
 
-          // BGMの音量を戻す
+          // BGMの音量を戻す（次回のために）
           adjustBgmVolume(1.0);
 
           // クイズの状態をリセット
