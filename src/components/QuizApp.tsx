@@ -10,6 +10,7 @@ import {
 } from "@/atoms";
 import Image from "next/image";
 import ResultCard from "./ui/ResultCard";
+import AudioManager from "@/utils/audioManager";
 
 const QuizApp = ({ setStarted }: { setStarted: (value: boolean) => void }) => {
   const [questions, setQuestions] = useAtom(questionsAtom);
@@ -23,27 +24,22 @@ const QuizApp = ({ setStarted }: { setStarted: (value: boolean) => void }) => {
   const [elapsedTime, setElapsedTime] = React.useState(0); // 経過時間 (ms 単位)
   const [totalElapsedTime, setTotalElapsedTime] = React.useState(0); // 全体の合計時間 (ms 単位)
 
-  // 再生中の音声を管理するための ref を追加
-  const audioRef = React.useRef<HTMLAudioElement | null>(null);
+  // 音声管理システムとタイマーの ref を追加
+  const audioManager = AudioManager.getInstance();
   const timerRef = React.useRef<NodeJS.Timeout | null>(null); // タイマーを管理
 
   // カスタムイベントを使ってBGMの音量を調整するための関数
-  const adjustBgmVolume = React.useCallback((volume: number) => {
-    // BGMの音量を調整するカスタムイベントを発行
-    const event = new CustomEvent("adjust-bgm-volume", { detail: { volume } });
-    window.dispatchEvent(event);
-  }, []);
+  const adjustBgmVolume = React.useCallback(
+    (volume: number) => {
+      audioManager.adjustBGMVolume(volume);
+    },
+    [audioManager]
+  );
 
   // 問題データの読み込み
   useEffect(() => {
-    // 他の場所で再生されているかもしれないBGMを停止するための空のAudio要素
-    const bgmElements = document.querySelectorAll("audio");
-    bgmElements.forEach((element) => {
-      if (element !== audioRef.current) {
-        element.pause();
-        element.currentTime = 0;
-      }
-    });
+    // 他の音声を停止
+    audioManager.stopAll();
 
     // ブラウザのオーディオ再生ポリシー対応のため、ユーザーインタラクション時に一度オーディオコンテキストを開始する
     const setupAudioContext = () => {
@@ -126,7 +122,7 @@ const QuizApp = ({ setStarted }: { setStarted: (value: boolean) => void }) => {
         window.removeEventListener(event, initAudioOnInteraction);
       });
     };
-  }, [setQuestions]);
+  }, [setQuestions, audioManager]);
 
   useEffect(() => {
     if (!questions.length) {
@@ -204,109 +200,52 @@ const QuizApp = ({ setStarted }: { setStarted: (value: boolean) => void }) => {
     if (!current) return; // current が null の場合は何もしない
     if (gameStatus === "finished") return; // ゲーム終了時は音を再生しない
 
-    // 再生中の音声を停止
-    if (audioRef.current && !audioRef.current.paused) {
-      audioRef.current.pause();
-      audioRef.current.currentTime = 0;
-    }
-
     // BGMの音量を下げる
     adjustBgmVolume(0.2); // BGMの音量を20%に下げる
 
     try {
-      // 新しい音声を再生
       const soundPath = `/sound/${current.sound}`;
       console.log("再生する音声ファイル:", soundPath);
 
-      // HTMLAudioElementを作成
-      const audioElement = document.createElement("audio");
+      // 新しい音声管理システムを使用して音声を再生
+      await audioManager.playSoundEffect(soundPath, 1.0);
+      console.log("音声再生開始成功");
 
-      // イベントリスナー設定を先に行う
-      audioElement.addEventListener("ended", () => {
-        console.log("音声再生完了");
-        adjustBgmVolume(1.0); // BGMの音量を100%に戻す
-      });
-
-      audioElement.addEventListener("canplaythrough", () => {
-        console.log("音声データの読み込みが完了し、再生の準備ができました");
-      });
-
-      audioElement.addEventListener("error", (e) => {
-        console.error("音声読み込みエラー:", e);
-        adjustBgmVolume(1.0); // エラー時にBGM音量を戻す
-      });
-
-      // ソース設定
-      audioElement.src = soundPath;
-      audioElement.preload = "auto";
-      audioRef.current = audioElement;
-
-      // 音声が読み込まれるまで待つ
-      if (audioElement.readyState < 2) {
-        audioElement.load();
-        await new Promise((resolve, reject) => {
-          audioElement.addEventListener("canplay", resolve, { once: true });
-          audioElement.addEventListener("error", reject, { once: true });
-        });
-      }
-
-      // 再生開始
-      try {
-        await audioElement.play();
-        console.log("音声再生開始成功");
-      } catch (error: unknown) {
-        console.error("音声の再生中にエラーが発生しました:", error);
-        // 自動再生がブロックされた可能性がある場合はコンソールに出力
-        if (error instanceof Error && error.name === "NotAllowedError") {
-          console.log(
-            "自動再生がブラウザにブロックされました。ユーザーインタラクションが必要です。"
-          );
-        }
-        // エラー発生時もBGM音量を元に戻す
+      // 音声再生完了後にBGM音量を元に戻すため、setTimeout を使用
+      setTimeout(() => {
         adjustBgmVolume(1.0);
-      }
-    } catch (err: unknown) {
-      console.error("予期せぬエラーが発生しました:", err);
-      adjustBgmVolume(1.0); // 例外発生時もBGM音量を元に戻す
-    }
-  }, [current, gameStatus, adjustBgmVolume]);
+      }, 3000); // 3秒後にBGM音量を戻す（音声の長さに応じて調整可能）
+    } catch (error: unknown) {
+      const errorMessage =
+        error instanceof Error ? error.message : String(error);
+      console.log("音声の再生中にエラーが発生しました:", errorMessage);
 
-  // 問題が変わるたびに自動で音声を再生する（複数回試行する戦略）
+      // 自動再生ポリシーエラーの場合は特別なメッセージ
+      if (
+        errorMessage.includes("user didn't interact") ||
+        errorMessage.includes("autoplay")
+      ) {
+        console.log("ユーザーインタラクション後に音声が再生されます");
+      }
+
+      // エラー発生時もBGM音量を元に戻す
+      adjustBgmVolume(1.0);
+    }
+  }, [current, gameStatus, adjustBgmVolume, audioManager]);
+
+  // 問題が変わるたびに自動で音声を再生する
   React.useEffect(() => {
     if (current) {
-      // 即時実行
+      // 音声を1回だけ再生
       playAudio();
-
-      // ブラウザの自動再生ポリシーに対応するため、異なる遅延時間で複数回再生を試みる
-      const retryTimes = [100, 300, 600]; // ミリ秒単位での遅延時間
-
-      const timeoutIds: NodeJS.Timeout[] = [];
-
-      retryTimes.forEach((delay) => {
-        const timeoutId = setTimeout(() => {
-          // 既に再生中でなければ再度再生を試みる
-          if (audioRef.current && audioRef.current.paused) {
-            console.log(`${delay}ms遅延後に再生を再試行します`);
-            playAudio();
-          }
-        }, delay);
-
-        timeoutIds.push(timeoutId);
-      });
-
-      // クリーンアップ関数
-      return () => {
-        timeoutIds.forEach((id) => clearTimeout(id));
-      };
     }
   }, [current, playAudio]);
 
   React.useEffect(() => {
-    if (gameStatus === "finished" && audioRef.current) {
-      audioRef.current.pause();
-      audioRef.current.currentTime = 0;
+    if (gameStatus === "finished") {
+      audioManager.stopAll();
     }
-  }, [gameStatus]);
+  }, [gameStatus, audioManager]);
 
   if (gameStatus === "finished") {
     return (
@@ -383,9 +322,7 @@ const QuizApp = ({ setStarted }: { setStarted: (value: boolean) => void }) => {
       {/* BGMコントロールボタン - 左上に固定配置 */}
       <button
         onClick={() => {
-          // ここでBGMのトグルイベントを発行
-          const event = new CustomEvent("toggle-bgm");
-          window.dispatchEvent(event);
+          audioManager.toggleBGM();
         }}
         className="absolute top-6 left-6 bg-white/20 backdrop-blur-md text-white p-3 rounded-full shadow-lg transition-all duration-300 hover:scale-110 hover:bg-white/30 z-50 border border-white/30"
         aria-label="BGM再生/停止"
@@ -397,10 +334,7 @@ const QuizApp = ({ setStarted }: { setStarted: (value: boolean) => void }) => {
       <button
         onClick={() => {
           // 現在再生中の音声があれば停止
-          if (audioRef.current && !audioRef.current.paused) {
-            audioRef.current.pause();
-            audioRef.current.currentTime = 0;
-          }
+          audioManager.stopAll();
 
           // BGMの音量を戻す
           adjustBgmVolume(1.0);

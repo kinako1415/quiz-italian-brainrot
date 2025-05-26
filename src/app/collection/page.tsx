@@ -5,6 +5,7 @@ import Image from "next/image";
 import { ImageCollection } from "@/types";
 import Link from "next/link";
 import useAudio from "@/hooks/useAudio";
+import AudioManager from "@/utils/audioManager";
 
 export default function Collection() {
   const [collection, setCollection] = useState<ImageCollection[]>([]);
@@ -16,8 +17,9 @@ export default function Collection() {
   const [loading, setLoading] = useState<boolean>(true);
   const [currentAudioId, setCurrentAudioId] = useState<string | null>(null);
 
-  // BGMを設定
-  const { toggle: toggleBgm } = useAudio("/bgm/bgm1.mp3", false, true);
+  // BGMを設定と音声管理システム
+  const { toggle: toggleBgm } = useAudio("/bgm/bgm1.mp3", false, true, true);
+  const audioManager = AudioManager.getInstance();
 
   // カテゴリーの一覧を取得（重複なし）
   const categories = [
@@ -70,85 +72,52 @@ export default function Collection() {
       // 現在再生中の音声があるか確認
       const isPlaying = currentAudioId === item.id;
 
-      // 現在再生中の音声があれば停止
-      if (currentAudioId) {
-        const currentAudio = document.getElementById(
-          `audio-${currentAudioId}`
-        ) as HTMLAudioElement;
-        if (currentAudio) {
-          // 再生中のPromiseがあれば適切に処理
-          if (!currentAudio.paused) {
-            currentAudio.pause();
-          }
-          currentAudio.currentTime = 0;
+      // BGMの音量を下げる
+      audioManager.adjustBGMVolume(0.2);
 
-          // BGMの音量を戻す
-          const event = new CustomEvent("adjust-bgm-volume", {
-            detail: { volume: 1.0 },
-          });
-          window.dispatchEvent(event);
-        }
-
-        // 同じアイテムの音声を停止する場合は、これ以上何もしない
-        if (isPlaying) {
-          setCurrentAudioId(null);
-          return;
-        }
+      // 同じアイテムの音声を停止する場合
+      if (isPlaying) {
+        audioManager.stopAll();
+        audioManager.adjustBGMVolume(1.0);
+        setCurrentAudioId(null);
+        return;
       }
+
+      // 他の音声を停止してから新しい音声を再生
+      audioManager.stopAll();
 
       // 新しい音声を再生
-      const audio = document.getElementById(
-        `audio-${item.id}`
-      ) as HTMLAudioElement;
-      if (audio) {
-        // 音声が既に準備されていない場合は読み込みを待つ
-        if (audio.readyState < 2) {
-          audio.load();
-          await new Promise((resolve) => {
-            audio.addEventListener("canplay", resolve, { once: true });
-          });
-        }
+      try {
+        await audioManager.playSoundEffect(item.audioUrl, 1.0);
+        setCurrentAudioId(item.id);
 
-        try {
-          // 再生を開始
-          await audio.play();
-          setCurrentAudioId(item.id);
-
-          // BGMの音量を下げる
-          const event = new CustomEvent("adjust-bgm-volume", {
-            detail: { volume: 0.2 },
-          });
-          window.dispatchEvent(event);
-
-          // 音声再生完了後の処理
-          audio.onended = () => {
-            setCurrentAudioId(null);
-            // BGMの音量を戻す
-            const event = new CustomEvent("adjust-bgm-volume", {
-              detail: { volume: 1.0 },
-            });
-            window.dispatchEvent(event);
-          };
-        } catch (playError) {
-          console.error("音声再生エラー:", playError);
-          // 再生に失敗した場合は状態をリセット
+        // 3秒後にBGM音量を戻す（音声の長さに応じて調整可能）
+        setTimeout(() => {
+          audioManager.adjustBGMVolume(1.0);
           setCurrentAudioId(null);
-          // BGMの音量を戻す
-          const event = new CustomEvent("adjust-bgm-volume", {
-            detail: { volume: 1.0 },
-          });
-          window.dispatchEvent(event);
+        }, 3000);
+      } catch (playError) {
+        const errorMessage =
+          playError instanceof Error ? playError.message : String(playError);
+        console.log("音声再生エラー:", errorMessage);
+
+        // 自動再生ポリシーエラーの場合は特別なメッセージ
+        if (
+          errorMessage.includes("user didn't interact") ||
+          errorMessage.includes("autoplay")
+        ) {
+          console.log("ユーザーインタラクション後に音声が再生されます");
         }
+
+        // 再生に失敗した場合は状態をリセット
+        setCurrentAudioId(null);
+        audioManager.adjustBGMVolume(1.0);
       }
     } catch (error) {
-      console.error("音声再生エラー:", error);
+      console.log("音声再生エラー:", error);
       // エラーが発生した場合は状態をリセット
       setCurrentAudioId(null);
-      // BGMの音量を戻す
-      const event = new CustomEvent("adjust-bgm-volume", {
-        detail: { volume: 1.0 },
-      });
-      window.dispatchEvent(event);
+      audioManager.adjustBGMVolume(1.0);
     }
   };
 
@@ -193,22 +162,9 @@ export default function Collection() {
           href="/"
           onClick={() => {
             // 現在再生中の音声があれば停止
-            if (currentAudioId) {
-              const currentAudio = document.getElementById(
-                `audio-${currentAudioId}`
-              ) as HTMLAudioElement;
-              if (currentAudio && !currentAudio.paused) {
-                currentAudio.pause();
-                currentAudio.currentTime = 0;
-              }
-              setCurrentAudioId(null);
-            }
-
-            // BGMの音量を戻す
-            const event = new CustomEvent("adjust-bgm-volume", {
-              detail: { volume: 1.0 },
-            });
-            window.dispatchEvent(event);
+            audioManager.stopAll();
+            audioManager.adjustBGMVolume(1.0);
+            setCurrentAudioId(null);
           }}
           className="bg-white/15 backdrop-blur-xl text-white p-3 rounded-full shadow-lg transition-all duration-300 hover:scale-105 border border-white/20"
           title="ホームに戻る（再生状態をリセット）"
@@ -267,7 +223,8 @@ export default function Collection() {
           {searchTerm && (
             <div className="text-center mb-6">
               <p className="text-white/70 text-lg">
-                Found {filteredCollection.length} results for &ldquo;{searchTerm}&rdquo;
+                Found {filteredCollection.length} results for &ldquo;
+                {searchTerm}&rdquo;
               </p>
             </div>
           )}
@@ -335,12 +292,6 @@ export default function Collection() {
                     </div>
                   </div>
                 </div>
-
-                <audio
-                  id={`audio-${item.id}`}
-                  src={item.audioUrl}
-                  preload="none"
-                />
               </div>
             ))}
           </div>

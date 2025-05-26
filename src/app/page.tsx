@@ -6,7 +6,12 @@ import useAudio from "@/hooks/useAudio";
 
 export default function Home() {
   const [started, setStarted] = useState(false);
-  const { stop, toggle, isPlaying } = useAudio("/bgm/bgm1.mp3", true, true);
+  const { stop, toggle, isPlaying } = useAudio(
+    "/bgm/bgm1.mp3",
+    true,
+    true,
+    true
+  );
 
   useEffect(() => {
     // クイズが始まったらBGMを停止
@@ -59,8 +64,11 @@ export default function Home() {
 
             {/* フッター情報 */}
             <div className="mt-8 text-center">
-              <p className="text-white/70 text-sm">
+              <p className="text-white/70 text-sm mb-2">
                 Choose the correct image from the sound
+              </p>
+              <p className="text-white/50 text-xs">
+                🔊 Click the speaker button to enable audio
               </p>
             </div>
           </div>

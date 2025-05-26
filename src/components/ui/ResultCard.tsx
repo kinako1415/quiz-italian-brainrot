@@ -15,7 +15,7 @@ const ResultCard: React.FC<ResultCardProps> = ({
   onRestart,
 }) => {
   // BGMを自動再生。toggle、isPlayingは使用しないので変数を省略
-  useAudio("/bgm/bgm1.mp3", true, true);
+  useAudio("/bgm/bgm1.mp3", true, true, true);
 
   const accuracy = Math.round((correctAnswers / totalQuestions) * 100);
   const averageTime = (totalElapsedTime / 1000 / totalQuestions).toFixed(1);
