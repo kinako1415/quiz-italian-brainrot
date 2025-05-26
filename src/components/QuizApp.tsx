@@ -200,7 +200,7 @@ const QuizApp = ({ setStarted }: { setStarted: (value: boolean) => void }) => {
 
   const current = questions[currentQuestionIndex] || null;
 
-  const playAudio = React.useCallback(() => {
+  const playAudio = React.useCallback(async () => {
     if (!current) return; // current が null の場合は何もしない
     if (gameStatus === "finished") return; // ゲーム終了時は音を再生しない
 
@@ -241,24 +241,31 @@ const QuizApp = ({ setStarted }: { setStarted: (value: boolean) => void }) => {
       audioElement.preload = "auto";
       audioRef.current = audioElement;
 
-      // 再生開始
-      const playPromise = audioElement.play();
-      if (playPromise !== undefined) {
-        playPromise
-          .then(() => console.log("音声再生開始成功"))
-          .catch((error) => {
-            console.error("音声の再生中にエラーが発生しました:", error);
-            // 自動再生がブロックされた可能性がある場合はコンソールに出力
-            if (error.name === "NotAllowedError") {
-              console.log(
-                "自動再生がブラウザにブロックされました。ユーザーインタラクションが必要です。"
-              );
-            }
-            // エラー発生時もBGM音量を元に戻す
-            adjustBgmVolume(1.0);
-          });
+      // 音声が読み込まれるまで待つ
+      if (audioElement.readyState < 2) {
+        audioElement.load();
+        await new Promise((resolve, reject) => {
+          audioElement.addEventListener('canplay', resolve, { once: true });
+          audioElement.addEventListener('error', reject, { once: true });
+        });
       }
-    } catch (err) {
+
+      // 再生開始
+      try {
+        await audioElement.play();
+        console.log("音声再生開始成功");
+      } catch (error: unknown) {
+        console.error("音声の再生中にエラーが発生しました:", error);
+        // 自動再生がブロックされた可能性がある場合はコンソールに出力
+        if (error instanceof Error && error.name === "NotAllowedError") {
+          console.log(
+            "自動再生がブラウザにブロックされました。ユーザーインタラクションが必要です。"
+          );
+        }
+        // エラー発生時もBGM音量を元に戻す
+        adjustBgmVolume(1.0);
+      }
+    } catch (err: unknown) {
       console.error("予期せぬエラーが発生しました:", err);
       adjustBgmVolume(1.0); // 例外発生時もBGM音量を元に戻す
     }
@@ -385,6 +392,38 @@ const QuizApp = ({ setStarted }: { setStarted: (value: boolean) => void }) => {
         aria-label="BGM再生/停止"
       >
         🔊
+      </button>
+
+      {/* ホームに戻るボタン - 右上に固定配置 */}
+      <button        onClick={() => {
+          // 現在再生中の音声があれば停止
+          if (audioRef.current && !audioRef.current.paused) {
+            audioRef.current.pause();
+            audioRef.current.currentTime = 0;
+          }
+          
+          // BGMの音量を戻す
+          adjustBgmVolume(1.0);
+          
+          // クイズの状態をリセット
+          setStarted(false);
+          setCurrentQuestionIndex(0);
+          setSelectedAnswer(null);
+          setCorrectAnswers(0);
+          setGameStatus("ready");
+          setTotalElapsedTime(0);
+          setElapsedTime(0);
+          
+          // タイマーを停止
+          if (timerRef.current) {
+            clearInterval(timerRef.current);
+          }
+        }}
+        className="absolute top-4 right-4 bg-gradient-to-r from-pink-700 to-purple-700 text-white p-3 rounded-full shadow-lg transition-all duration-300 hover:scale-105 hover:shadow-pink-500/30 hover:shadow-xl z-50 backdrop-blur-md border border-pink-600/30"
+        title="ホームに戻る（ゲームをリセット）"
+        aria-label="ホームに戻る"
+      >
+        🏠
       </button>
 
       {selectedAnswer && (

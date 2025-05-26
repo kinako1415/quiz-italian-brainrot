@@ -65,7 +65,7 @@ export default function Collection() {
   }, [searchTerm, selectedCategory, collection]);
 
   // 音声再生・停止ロジック
-  const toggleAudio = (item: ImageCollection) => {
+  const toggleAudio = async (item: ImageCollection) => {
     try {
       // 現在再生中の音声があるか確認
       const isPlaying = currentAudioId === item.id;
@@ -76,7 +76,10 @@ export default function Collection() {
           `audio-${currentAudioId}`
         ) as HTMLAudioElement;
         if (currentAudio) {
-          currentAudio.pause();
+          // 再生中のPromiseがあれば適切に処理
+          if (!currentAudio.paused) {
+            currentAudio.pause();
+          }
           currentAudio.currentTime = 0;
 
           // BGMの音量を戻す
@@ -98,29 +101,54 @@ export default function Collection() {
         `audio-${item.id}`
       ) as HTMLAudioElement;
       if (audio) {
-        audio.play().catch((error) => {
-          console.error("音声再生エラー:", error);
-        });
-        setCurrentAudioId(item.id);
+        // 音声が既に準備されていない場合は読み込みを待つ
+        if (audio.readyState < 2) {
+          audio.load();
+          await new Promise((resolve) => {
+            audio.addEventListener('canplay', resolve, { once: true });
+          });
+        }
 
-        // BGMの音量を下げる
-        const event = new CustomEvent("adjust-bgm-volume", {
-          detail: { volume: 0.2 },
-        });
-        window.dispatchEvent(event);
+        try {
+          // 再生を開始
+          await audio.play();
+          setCurrentAudioId(item.id);
 
-        // 音声再生完了後の処理
-        audio.onended = () => {
+          // BGMの音量を下げる
+          const event = new CustomEvent("adjust-bgm-volume", {
+            detail: { volume: 0.2 },
+          });
+          window.dispatchEvent(event);
+
+          // 音声再生完了後の処理
+          audio.onended = () => {
+            setCurrentAudioId(null);
+            // BGMの音量を戻す
+            const event = new CustomEvent("adjust-bgm-volume", {
+              detail: { volume: 1.0 },
+            });
+            window.dispatchEvent(event);
+          };
+        } catch (playError) {
+          console.error("音声再生エラー:", playError);
+          // 再生に失敗した場合は状態をリセット
           setCurrentAudioId(null);
           // BGMの音量を戻す
           const event = new CustomEvent("adjust-bgm-volume", {
             detail: { volume: 1.0 },
           });
           window.dispatchEvent(event);
-        };
+        }
       }
     } catch (error) {
       console.error("音声再生エラー:", error);
+      // エラーが発生した場合は状態をリセット
+      setCurrentAudioId(null);
+      // BGMの音量を戻す
+      const event = new CustomEvent("adjust-bgm-volume", {
+        detail: { volume: 1.0 },
+      });
+      window.dispatchEvent(event);
     }
   };
 
@@ -191,7 +219,27 @@ export default function Collection() {
       {/* ホームに戻るリンク */}
       <Link
         href="/"
+        onClick={() => {
+          // 現在再生中の音声があれば停止
+          if (currentAudioId) {
+            const currentAudio = document.getElementById(
+              `audio-${currentAudioId}`
+            ) as HTMLAudioElement;
+            if (currentAudio && !currentAudio.paused) {
+              currentAudio.pause();
+              currentAudio.currentTime = 0;
+            }
+            setCurrentAudioId(null);
+          }
+          
+          // BGMの音量を戻す
+          const event = new CustomEvent("adjust-bgm-volume", {
+            detail: { volume: 1.0 },
+          });
+          window.dispatchEvent(event);
+        }}
         className="absolute top-4 right-4 bg-gradient-to-r from-pink-700 to-purple-700 text-white p-3 rounded-full shadow-lg transition-all duration-300 hover:scale-105 hover:shadow-pink-500/30 hover:shadow-xl z-50 backdrop-blur-md border border-pink-600/30"
+        title="ホームに戻る（再生状態をリセット）"
       >
         🏠
       </Link>
@@ -204,14 +252,9 @@ export default function Collection() {
             Italian Brainrot Gallery
           </h1>
 
-          {/* サブタイトル */}
-          <p className="text-white text-lg font-semibold text-center sm:text-xl md:text-2xl max-w-3xl mx-auto bg-gradient-to-r from-purple-400/10 via-pink-500/20 to-purple-400/10 py-2 px-4 rounded-full backdrop-blur-sm">
-            音声付き画像コレクション
-          </p>
-
           {/* ステータス表示 */}
           <div className="flex items-center justify-center gap-2 mt-3">
-            <span className="bg-black bg-opacity-30 backdrop-blur-sm rounded-full px-4 py-1 flex items-center">
+            <span className=" bg-opacity-30 backdrop-blur-sm rounded-full px-4 py-1 flex items-center">
               <span className="text-green-400 mr-1 animate-pulse">🔊</span>
               <span className="text-white text-sm font-medium">
                 画像をタップすると音声の再生/停止ができます
