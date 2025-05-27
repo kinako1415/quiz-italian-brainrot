@@ -42,43 +42,6 @@ const QuizApp = ({ setStarted }: { setStarted: (value: boolean) => void }) => {
     audioManager.stopAll();
     audioManager.stopBGM();
 
-    // ブラウザのオーディオ再生ポリシー対応のため、ユーザーインタラクション時に一度オーディオコンテキストを開始する
-    const setupAudioContext = () => {
-      try {
-        // AudioContextを作成して一時的に開始し、すぐに中断する（ブラウザの自動再生ポリシー対策）
-        // ブラウザのオーディオAPIを適切に処理
-        // @ts-expect-error -- SafariのwebkitAudioContextとの互換性のため
-        const AudioContext = window.AudioContext || window.webkitAudioContext;
-
-        if (AudioContext) {
-          const audioCtx = new AudioContext();
-          const silenceSource = audioCtx.createBufferSource();
-          silenceSource.start();
-          silenceSource.stop();
-          console.log("AudioContext初期化完了");
-        }
-      } catch (e) {
-        console.log("AudioContext初期化エラー:", e);
-      }
-    };
-
-    // ページロード時にユーザーインタラクションを待たずに一度試みる
-    setupAudioContext();
-
-    // ユーザーインタラクションイベントでオーディオコンテキストを初期化
-    const initAudioOnInteraction = () => {
-      setupAudioContext();
-      // イベントを一度処理したら削除
-      ["click", "touchstart", "keydown"].forEach((event) => {
-        window.removeEventListener(event, initAudioOnInteraction);
-      });
-    };
-
-    // イベントリスナーを追加
-    ["click", "touchstart", "keydown"].forEach((event) => {
-      window.addEventListener(event, initAudioOnInteraction);
-    });
-
     const fetchFiles = async (path: string): Promise<string[]> => {
       const res = await fetch(path);
       if (!res.ok) throw new Error(`Failed to fetch files from ${path}`);
@@ -115,13 +78,6 @@ const QuizApp = ({ setStarted }: { setStarted: (value: boolean) => void }) => {
     };
 
     loadQuestions();
-
-    // クリーンアップ関数
-    return () => {
-      ["click", "touchstart", "keydown"].forEach((event) => {
-        window.removeEventListener(event, initAudioOnInteraction);
-      });
-    };
   }, [setQuestions, audioManager]);
 
   useEffect(() => {
@@ -200,6 +156,17 @@ const QuizApp = ({ setStarted }: { setStarted: (value: boolean) => void }) => {
     if (!current) return; // current が null の場合は何もしない
     if (gameStatus === "finished") return; // ゲーム終了時は音を再生しない
 
+    // 音声ボタンがクリックされた時点でユーザーインタラクションを確実に設定
+    audioManager.setUserInteracted();
+
+    // 現在の問題の詳細をログ出力
+    console.log("現在の問題:", current);
+    console.log("音声ファイル名:", current.sound);
+    console.log(
+      "ユーザーインタラクション状態:",
+      audioManager.hasUserInteracted()
+    );
+
     // 既に同じ音声が再生中の場合はスキップ
     if (
       audioManager.isSoundEffectPlaying() &&
@@ -215,6 +182,28 @@ const QuizApp = ({ setStarted }: { setStarted: (value: boolean) => void }) => {
     try {
       const soundPath = `/sound/${current.sound}`;
       console.log("再生する音声ファイル:", soundPath);
+
+      // 音声ファイルが存在するかチェック
+      const response = await fetch(soundPath, { method: "HEAD" });
+      console.log(
+        "音声ファイルの存在確認:",
+        response.status,
+        response.statusText
+      );
+
+      if (!response.ok) {
+        throw new Error(
+          `音声ファイルが見つかりません: ${soundPath} (${response.status})`
+        );
+      }
+
+      // ユーザーインタラクションの再確認（音声再生直前）
+      if (!audioManager.hasUserInteracted()) {
+        console.warn(
+          "ユーザーインタラクションが検出されていません。再設定を試行します。"
+        );
+        audioManager.setUserInteracted();
+      }
 
       // 新しい音声管理システムを使用して音声を再生
       await audioManager.playSoundEffect(soundPath, 1.0);
@@ -232,14 +221,22 @@ const QuizApp = ({ setStarted }: { setStarted: (value: boolean) => void }) => {
       if (error instanceof Error && error.name === "AbortError") {
         console.log("音声再生が正常に中断されました");
       } else {
-        console.log("音声の再生中にエラーが発生しました:", errorMessage);
+        console.error("音声の再生中にエラーが発生しました:", errorMessage);
 
-        // 自動再生ポリシーエラーの場合は特別なメッセージ
+        // autoplayポリシーエラーの場合は特別なメッセージ
         if (
+          errorMessage.includes("autoplayポリシー") ||
           errorMessage.includes("user didn't interact") ||
-          errorMessage.includes("autoplay")
+          errorMessage.includes("autoplay") ||
+          errorMessage.includes("NotAllowedError")
         ) {
-          console.log("ユーザーインタラクション後に音声が再生されます");
+          console.log("🎵 音声を聞くには、🔊ボタンを直接クリックしてください");
+          alert(
+            "🔊 音声を再生するには、ボタンを直接クリックしてください。\n\nブラウザの音声再生ポリシーにより、ユーザーの操作が必要です。"
+          );
+        } else {
+          // その他のエラー（ファイルが見つからない等）
+          alert(`音声再生エラー: ${errorMessage}`);
         }
       }
 
@@ -248,17 +245,15 @@ const QuizApp = ({ setStarted }: { setStarted: (value: boolean) => void }) => {
     }
   }, [current, gameStatus, adjustBgmVolume, audioManager]);
 
-  // 問題が変わるたびに自動で音声を再生する
+  // 問題が変わった時の処理（自動音声再生は無効化してユーザーインタラクションエラーを防ぐ）
   React.useEffect(() => {
     if (current && gameStatus === "playing") {
-      // 前の音声が完全に停止されるまで少し待ってから新しい音声を再生
-      const timer = setTimeout(() => {
-        playAudio();
-      }, 200); // 200ms待機（音声の切り替えを確実にする）
-
-      return () => clearTimeout(timer);
+      // 自動音声再生は無効化 - ユーザーが🔊ボタンをクリックした時のみ再生
+      console.log(
+        "新しい問題が表示されました。🔊ボタンをクリックして音声を聞いてください。"
+      );
     }
-  }, [current, gameStatus, playAudio]);
+  }, [current, gameStatus]);
 
   // ゲームステータスに応じたBGM制御
   React.useEffect(() => {
@@ -347,7 +342,7 @@ const QuizApp = ({ setStarted }: { setStarted: (value: boolean) => void }) => {
     );
   }
   return (
-    <div className="h-screen bg-gradient-to-br flex items-center justify-center p-3 overflow-hidden">
+    <div className="h-screen bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-900 flex items-center justify-center p-3 overflow-hidden">
       {/* ホームに戻るボタン - 右上に固定配置 */}
       <button
         onClick={async () => {
@@ -392,7 +387,26 @@ const QuizApp = ({ setStarted }: { setStarted: (value: boolean) => void }) => {
               </div>
 
               <button
-                onClick={playAudio}
+                onClick={(e) => {
+                  // イベントの伝播を止める
+                  e.stopPropagation();
+
+                  // より確実なユーザーインタラクション設定
+                  audioManager.setUserInteracted();
+
+                  // 音声再生を実行
+                  playAudio();
+                }}
+                onMouseDown={(e) => {
+                  // マウスダウンでもユーザーインタラクションを設定
+                  e.stopPropagation();
+                  audioManager.setUserInteracted();
+                }}
+                onTouchStart={(e) => {
+                  // タッチ開始でもユーザーインタラクションを設定
+                  e.stopPropagation();
+                  audioManager.setUserInteracted();
+                }}
                 className="bg-gradient-to-r from-pink-500 to-purple-600 text-white p-2 rounded-full shadow-lg transition-all duration-300 hover:scale-110 active:scale-95"
                 title="音声をもう一度聞く"
                 aria-label="音声をもう一度再生"

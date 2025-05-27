@@ -21,30 +21,124 @@ class AudioManager {
       AudioManager.instance = new AudioManager();
     }
     return AudioManager.instance;
-  }
-
-  // ユーザーインタラクションの監視
+  } // ユーザーインタラクションの監視
   private initializeUserInteractionListener(): void {
     // サーバーサイドでは何もしない
     if (typeof window === "undefined") return;
 
-    const events = ["click", "touchstart", "keydown"];
+    const events = [
+      "click",
+      "touchstart",
+      "keydown",
+      "mousedown",
+      "pointerdown",
+      "touchend",
+      "mouseup",
+    ];
 
-    const handleUserInteraction = () => {
-      this.userInteracted = true;
-      // イベントリスナーを削除（一度だけ実行）
-      events.forEach((event) => {
-        document.removeEventListener(event, handleUserInteraction);
-      });
+    const handleUserInteraction = (event: Event) => {
+      if (!this.userInteracted) {
+        this.userInteracted = true;
+        console.log(
+          "ユーザーインタラクションが検出されました:",
+          event.type,
+          event.target
+        );
+
+        // AudioContextの初期化も行う
+        this.initializeAudioContext();
+
+        // より確実にAudioContextを resume する
+        this.resumeAudioContext();
+
+        // イベントリスナーを削除（一度だけ実行）
+        events.forEach((eventType) => {
+          document.removeEventListener(eventType, handleUserInteraction, {
+            capture: true,
+          });
+          document.removeEventListener(eventType, handleUserInteraction, {
+            capture: false,
+          });
+        });
+      }
     };
 
-    events.forEach((event) => {
-      document.addEventListener(event, handleUserInteraction);
+    // キャプチャフェーズとバブリングフェーズの両方でリスンしてより確実にキャッチ
+    events.forEach((eventType) => {
+      document.addEventListener(eventType, handleUserInteraction, {
+        passive: true,
+        capture: true,
+      });
+      document.addEventListener(eventType, handleUserInteraction, {
+        passive: true,
+        capture: false,
+      });
     });
   }
 
+  // 手動でユーザーインタラクションを設定（音声ボタンクリック時に呼び出し）
+  public setUserInteracted(): void {
+    if (!this.userInteracted) {
+      this.userInteracted = true;
+      console.log("ユーザーインタラクションを手動で設定しました");
+      this.initializeAudioContext();
+      this.resumeAudioContext();
+    } else {
+      // 既にインタラクションが設定されていても、AudioContextのresumeを試行
+      this.resumeAudioContext();
+    }
+  }
+
+  // AudioContextの初期化
+  private initializeAudioContext(): void {
+    try {
+      // @ts-expect-error -- SafariのwebkitAudioContextとの互換性のため
+      const AudioContext = window.AudioContext || window.webkitAudioContext;
+
+      if (AudioContext) {
+        const audioCtx = new AudioContext();
+        // サイレント音源を再生してAudioContextを開始
+        const buffer = audioCtx.createBuffer(1, 1, 22050);
+        const source = audioCtx.createBufferSource();
+        source.buffer = buffer;
+        source.connect(audioCtx.destination);
+        source.start();
+        console.log("AudioContext初期化完了");
+      }
+    } catch (e) {
+      console.log("AudioContext初期化エラー:", e);
+    }
+  }
+
+  // AudioContextをresumeする（suspended状態からの復帰）
+  private resumeAudioContext(): void {
+    try {
+      // @ts-expect-error -- SafariのwebkitAudioContextとの互換性のため
+      const AudioContext = window.AudioContext || window.webkitAudioContext;
+
+      if (AudioContext) {
+        // グローバルなAudioContextがあれば resume を試行
+        const contexts = (window as any).__audioContexts || [];
+        contexts.forEach((ctx: AudioContext) => {
+          if (ctx.state === "suspended") {
+            ctx
+              .resume()
+              .then(() => {
+                console.log("AudioContext resumed successfully");
+              })
+              .catch((e) => {
+                console.log("Failed to resume AudioContext:", e);
+              });
+          }
+        });
+      }
+    } catch (e) {
+      console.log("AudioContext resume エラー:", e);
+    }
+  }
+
   // ユーザーがインタラクションしたかチェック
-  private hasUserInteracted(): boolean {
+  public hasUserInteracted(): boolean {
     return this.userInteracted;
   }
 
@@ -113,14 +207,6 @@ class AudioManager {
         return;
       }
 
-      // ユーザーインタラクションがない場合は警告を出して処理を停止
-      if (!this.hasUserInteracted()) {
-        console.warn(
-          "ユーザーインタラクションが検出されていないため、音声再生をスキップします"
-        );
-        return;
-      }
-
       // 前の効果音を停止（awaitで完了を待つ）
       await this.stopAll();
 
@@ -160,6 +246,21 @@ class AudioManager {
           // 再生が中断された場合の処理
           if (error.name === "AbortError") {
             console.log("音声再生が中断されました（正常な動作）:", src);
+          } else if (
+            error.message.includes("user didn't interact") ||
+            error.message.includes("autoplay") ||
+            error.message.includes("NotAllowedError") ||
+            error.name === "NotAllowedError"
+          ) {
+            // autoplay policy エラーの場合の詳細なログ
+            console.error("Autoplay policy error:", error.message);
+            console.log("ユーザーインタラクション状態:", this.userInteracted);
+            console.log("音声ファイル:", src);
+            console.log("エラーの詳細:", error);
+            // ユーザーに分かりやすいエラーメッセージを throw
+            throw new Error(
+              "ブラウザのautoplayポリシーにより音声再生が制限されました。🔊ボタンを直接クリックしてください。"
+            );
           } else {
             console.error("音声再生エラー:", error);
             throw error;
@@ -207,14 +308,6 @@ class AudioManager {
     if (typeof window === "undefined") return;
 
     try {
-      // ユーザーインタラクションがない場合は警告を出して処理を停止
-      if (!this.hasUserInteracted()) {
-        console.warn(
-          "ユーザーインタラクションが検出されていないため、BGM再生をスキップします"
-        );
-        return;
-      }
-
       // 既存のBGMを停止
       if (this.bgmAudio) {
         this.bgmAudio.pause();
@@ -249,13 +342,6 @@ class AudioManager {
   toggleBGM(): void {
     if (this.bgmAudio) {
       if (this.bgmAudio.paused) {
-        // ユーザーインタラクションがない場合は警告
-        if (!this.hasUserInteracted()) {
-          console.warn(
-            "ユーザーインタラクションが検出されていないため、BGM再生をスキップします"
-          );
-          return;
-        }
         this.bgmAudio.play().catch(console.error);
       } else {
         this.bgmAudio.pause();
