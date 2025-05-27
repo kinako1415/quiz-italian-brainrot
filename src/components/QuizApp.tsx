@@ -347,7 +347,7 @@ const QuizApp = ({ setStarted }: { setStarted: (value: boolean) => void }) => {
     );
   }
   return (
-    <div className="h-screen bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-900 flex items-center justify-center p-3 overflow-hidden">
+    <div className="h-screen bg-gradient-to-br flex items-center justify-center p-3 overflow-hidden">
       {/* ホームに戻るボタン - 右上に固定配置 */}
       <button
         onClick={async () => {
@@ -412,11 +412,11 @@ const QuizApp = ({ setStarted }: { setStarted: (value: boolean) => void }) => {
             </div>
           </div>
 
-          {/* 正解/不正解表示 */}
-          {selectedAnswer && (
-            <div className="text-center mb-3">
+          {/* 正解/不正解表示 - 固定高さを確保してコンテンツジャンプを防止 */}
+          <div className="text-center mb-3 h-10 flex items-center justify-center">
+            {selectedAnswer ? (
               <div
-                className={`inline-block px-4 py-1 rounded-full font-semibold text-sm ${
+                className={`inline-block px-4 py-2 rounded-full font-semibold text-sm transition-all duration-300 ${
                   selectedAnswer === current.correctAnswer
                     ? "bg-green-500/80 text-white"
                     : "bg-red-500/80 text-white"
@@ -426,11 +426,13 @@ const QuizApp = ({ setStarted }: { setStarted: (value: boolean) => void }) => {
                   ? "正解！ ✓"
                   : "不正解！ ✗"}
               </div>
-            </div>
-          )}
+            ) : (
+              <div className="h-8 w-full"></div>
+            )}
+          </div>
 
           {/* 画像選択グリッド */}
-          <div className="grid grid-cols-2 gap-2 mb-4">
+          <div className="grid grid-cols-2 gap-2 mb-6">
             {shuffled.map((img) => (
               <button
                 key={img}
@@ -472,20 +474,22 @@ const QuizApp = ({ setStarted }: { setStarted: (value: boolean) => void }) => {
             ))}
           </div>
 
-          {/* Next ボタン */}
-          <button
-            onClick={handleNext}
-            disabled={!selectedAnswer}
-            className={`w-full py-3 px-4 rounded-xl font-semibold text-base transition-all duration-300 ${
-              selectedAnswer
-                ? "bg-gradient-to-r from-pink-500 to-purple-600 text-white shadow-lg hover:scale-[1.02] active:scale-95"
-                : "bg-white/20 text-white/50 cursor-not-allowed"
-            }`}
-          >
-            {currentQuestionIndex < questions.length - 1
-              ? "次の問題"
-              : "結果を見る"}
-          </button>
+          {/* 次の問題ボタン - コンテンツ内に配置 */}
+          <div className="mt-4">
+            <button
+              onClick={handleNext}
+              disabled={!selectedAnswer}
+              className={`w-full py-4 px-6 rounded-2xl font-bold text-lg transition-all duration-300 shadow-xl ${
+                selectedAnswer
+                  ? "bg-gradient-to-r from-pink-500 to-purple-600 text-white hover:scale-[1.02] active:scale-95 hover:shadow-pink-500/50"
+                  : "bg-white/20 backdrop-blur-md text-white/50 cursor-not-allowed border border-white/30"
+              }`}
+            >
+              {currentQuestionIndex < questions.length - 1
+                ? "次の問題 →"
+                : "結果を見る 🏆"}
+            </button>
+          </div>
         </div>
       </div>
     </div>
