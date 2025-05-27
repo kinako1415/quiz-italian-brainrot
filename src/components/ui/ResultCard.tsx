@@ -24,24 +24,24 @@ const ResultCard: React.FC<ResultCardProps> = ({
   const getPerformanceMessage = () => {
     if (accuracy >= 90)
       return {
-        message: "Excellent! 🏆",
+        message: "素晴らしい！ 🏆",
         emoji: "🎉",
         color: "from-yellow-400 to-orange-500",
       };
     if (accuracy >= 70)
       return {
-        message: "Great Job! 🌟",
+        message: "よくできました！ 🌟",
         emoji: "👏",
         color: "from-green-400 to-blue-500",
       };
     if (accuracy >= 50)
       return {
-        message: "Good Effort! 💪",
+        message: "がんばりました！ 💪",
         emoji: "😊",
         color: "from-blue-400 to-purple-500",
       };
     return {
-      message: "Keep Practicing! 📚",
+      message: "練習あるのみ！ 📚",
       emoji: "💪",
       color: "from-purple-400 to-pink-500",
     };
@@ -63,7 +63,7 @@ const ResultCard: React.FC<ResultCardProps> = ({
           <h2
             className={`text-2xl font-bold mb-3 bg-gradient-to-r ${performance.color} bg-clip-text text-transparent`}
           >
-            Quiz Complete!
+            クイズ完了！
           </h2>
 
           {/* パフォーマンスメッセージ */}
@@ -78,7 +78,7 @@ const ResultCard: React.FC<ResultCardProps> = ({
             {/* 正解率 */}
             <div className="bg-white/20 backdrop-blur-md rounded-xl p-3">
               <div className="text-center">
-                <span className="text-white/80 text-sm block">Accuracy</span>
+                <span className="text-white/80 text-sm block">正解率</span>
                 <span className="text-white text-xl font-bold">
                   {accuracy}%
                 </span>
@@ -102,7 +102,7 @@ const ResultCard: React.FC<ResultCardProps> = ({
             {/* 正解数 */}
             <div className="bg-white/20 backdrop-blur-md rounded-xl p-3">
               <div className="text-center">
-                <span className="text-white/80 text-sm block">Correct</span>
+                <span className="text-white/80 text-sm block">正解数</span>
                 <span className="text-white text-xl font-bold">
                   <span className="text-green-400">{correctAnswers}</span>
                   <span className="text-white/60">/{totalQuestions}</span>
@@ -116,12 +116,12 @@ const ResultCard: React.FC<ResultCardProps> = ({
             {/* 総時間 */}
             <div className="bg-white/20 backdrop-blur-md rounded-xl p-3">
               <div className="text-center">
-                <span className="text-white/80 text-sm block">Total Time</span>
+                <span className="text-white/80 text-sm block">総時間</span>
                 <span className="text-white text-lg font-bold">
                   <span className="text-yellow-400">
                     {(totalElapsedTime / 1000).toFixed(1)}
                   </span>
-                  <span className="text-white/60 text-sm">s</span>
+                  <span className="text-white/60 text-sm">秒</span>
                 </span>
               </div>
             </div>
@@ -129,10 +129,10 @@ const ResultCard: React.FC<ResultCardProps> = ({
             {/* 平均時間 */}
             <div className="bg-white/20 backdrop-blur-md rounded-xl p-3">
               <div className="text-center">
-                <span className="text-white/80 text-sm block">Average</span>
+                <span className="text-white/80 text-sm block">平均時間</span>
                 <span className="text-white text-lg font-bold">
                   <span className="text-purple-400">{averageTime}</span>
-                  <span className="text-white/60 text-sm">s</span>
+                  <span className="text-white/60 text-sm">秒</span>
                 </span>
               </div>
             </div>
@@ -144,21 +144,21 @@ const ResultCard: React.FC<ResultCardProps> = ({
               className="w-full py-3 px-6 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-bold text-base rounded-xl shadow-lg transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl active:scale-95"
               onClick={onRestart}
             >
-              🏠 Back to Home
+              🏠 ホームに戻る
             </button>
 
             <button
               className="w-full py-2 px-6 bg-white/20 backdrop-blur-md text-white font-semibold text-sm rounded-xl border border-white/30 transition-all duration-300 hover:bg-white/30 hover:scale-[1.02]"
               onClick={() => window.location.reload()}
             >
-              🔄 Play Again
+              🔄 もう一度プレイ
             </button>
           </div>
 
           {/* 追加メッセージ */}
           <div className="mt-3 pt-3 border-t border-white/20">
             <p className="text-white/60 text-xs">
-              Want to explore more? Check out the Gallery!
+              もっと探索したい？ギャラリーをチェックしてみてください！
             </p>
           </div>
         </div>

@@ -100,7 +100,6 @@ const QuizApp = ({ setStarted }: { setStarted: (value: boolean) => void }) => {
               .filter((img) => img !== correctAnswer)
               .sort(() => Math.random() - 0.5)
               .slice(0, 3);
-
             return {
               sound,
               correctAnswer,
@@ -201,6 +200,15 @@ const QuizApp = ({ setStarted }: { setStarted: (value: boolean) => void }) => {
     if (!current) return; // current が null の場合は何もしない
     if (gameStatus === "finished") return; // ゲーム終了時は音を再生しない
 
+    // 既に同じ音声が再生中の場合はスキップ
+    if (
+      audioManager.isSoundEffectPlaying() &&
+      audioManager.getCurrentSoundEffectSrc() === `/sound/${current.sound}`
+    ) {
+      console.log("同じ音声が既に再生中のため、スキップします");
+      return;
+    }
+
     // BGMの音量を下げる
     adjustBgmVolume(0.2); // BGMの音量を20%に下げる
 
@@ -219,14 +227,20 @@ const QuizApp = ({ setStarted }: { setStarted: (value: boolean) => void }) => {
     } catch (error: unknown) {
       const errorMessage =
         error instanceof Error ? error.message : String(error);
-      console.log("音声の再生中にエラーが発生しました:", errorMessage);
 
-      // 自動再生ポリシーエラーの場合は特別なメッセージ
-      if (
-        errorMessage.includes("user didn't interact") ||
-        errorMessage.includes("autoplay")
-      ) {
-        console.log("ユーザーインタラクション後に音声が再生されます");
+      // AbortErrorは正常な中断なので、エラーメッセージを表示しない
+      if (error instanceof Error && error.name === "AbortError") {
+        console.log("音声再生が正常に中断されました");
+      } else {
+        console.log("音声の再生中にエラーが発生しました:", errorMessage);
+
+        // 自動再生ポリシーエラーの場合は特別なメッセージ
+        if (
+          errorMessage.includes("user didn't interact") ||
+          errorMessage.includes("autoplay")
+        ) {
+          console.log("ユーザーインタラクション後に音声が再生されます");
+        }
       }
 
       // エラー発生時もBGM音量を元に戻す
@@ -236,22 +250,30 @@ const QuizApp = ({ setStarted }: { setStarted: (value: boolean) => void }) => {
 
   // 問題が変わるたびに自動で音声を再生する
   React.useEffect(() => {
-    if (current) {
-      // 音声を1回だけ再生
-      playAudio();
+    if (current && gameStatus === "playing") {
+      // 前の音声が完全に停止されるまで少し待ってから新しい音声を再生
+      const timer = setTimeout(() => {
+        playAudio();
+      }, 200); // 200ms待機（音声の切り替えを確実にする）
+
+      return () => clearTimeout(timer);
     }
-  }, [current, playAudio]);
+  }, [current, gameStatus, playAudio]);
 
   // ゲームステータスに応じたBGM制御
   React.useEffect(() => {
-    if (gameStatus === "playing") {
-      // クイズ問題が開始されたらBGMを停止
-      audioManager.stopBGM();
-    } else if (gameStatus === "finished") {
-      // ゲーム終了時もBGMを停止し、全ての音声効果を停止
-      audioManager.stopAll();
-      audioManager.stopBGM();
-    }
+    const handleStatusChange = async () => {
+      if (gameStatus === "playing") {
+        // クイズ問題が開始されたらBGMを停止
+        audioManager.stopBGM();
+      } else if (gameStatus === "finished") {
+        // ゲーム終了時もBGMを停止し、全ての音声効果を停止
+        await audioManager.stopAll();
+        audioManager.stopBGM();
+      }
+    };
+
+    handleStatusChange();
   }, [gameStatus, audioManager]);
 
   if (gameStatus === "finished") {
@@ -328,9 +350,9 @@ const QuizApp = ({ setStarted }: { setStarted: (value: boolean) => void }) => {
     <div className="h-screen bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-900 flex items-center justify-center p-3 overflow-hidden">
       {/* ホームに戻るボタン - 右上に固定配置 */}
       <button
-        onClick={() => {
-          // 現在再生中の音声があれば停止
-          audioManager.stopAll();
+        onClick={async () => {
+          // 現在再生中の音声があれば停止（非同期で待機）
+          await audioManager.stopAll();
           audioManager.stopBGM();
 
           // BGMの音量を戻す（次回のために）
@@ -365,7 +387,7 @@ const QuizApp = ({ setStarted }: { setStarted: (value: boolean) => void }) => {
             <div className="flex items-center justify-between mb-3">
               <div className="bg-white/20 backdrop-blur-md px-3 py-1 rounded-full">
                 <span className="text-white font-semibold text-xs">
-                  Question {currentQuestionIndex + 1}/{questions.length}
+                  問題 {currentQuestionIndex + 1}/{questions.length}
                 </span>
               </div>
 
@@ -380,7 +402,7 @@ const QuizApp = ({ setStarted }: { setStarted: (value: boolean) => void }) => {
             </div>
 
             <h2 className="text-white text-lg font-semibold mb-2">
-              Which image matches the sound?
+              音声に合う画像を選んでください
             </h2>
 
             <div className="bg-white/20 backdrop-blur-md px-3 py-1 rounded-full inline-block">
@@ -401,8 +423,8 @@ const QuizApp = ({ setStarted }: { setStarted: (value: boolean) => void }) => {
                 }`}
               >
                 {selectedAnswer === current.correctAnswer
-                  ? "Correct! ✓"
-                  : "Wrong! ✗"}
+                  ? "正解！ ✓"
+                  : "不正解！ ✗"}
               </div>
             </div>
           )}
@@ -461,8 +483,8 @@ const QuizApp = ({ setStarted }: { setStarted: (value: boolean) => void }) => {
             }`}
           >
             {currentQuestionIndex < questions.length - 1
-              ? "Next Question"
-              : "Finish"}
+              ? "次の問題"
+              : "結果を見る"}
           </button>
         </div>
       </div>

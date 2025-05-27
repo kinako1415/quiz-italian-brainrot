@@ -77,14 +77,14 @@ export default function Collection() {
 
       // 同じアイテムの音声を停止する場合
       if (isPlaying) {
-        audioManager.stopAll();
+        await audioManager.stopAll();
         audioManager.adjustBGMVolume(1.0);
         setCurrentAudioId(null);
         return;
       }
 
-      // 他の音声を停止してから新しい音声を再生
-      audioManager.stopAll();
+      // 他の音声を停止してから新しい音声を再生（awaitで完了を待つ）
+      await audioManager.stopAll();
 
       // 新しい音声を再生
       try {
@@ -134,10 +134,10 @@ export default function Collection() {
             </div>
           </div>
           <h2 className="text-white text-2xl font-bold mb-2">
-            Loading Gallery
+            ギャラリーを読み込み中
           </h2>
           <p className="text-white/70 text-lg">
-            Preparing your image collection...
+            画像コレクションを準備しています...
           </p>
         </div>
       </div>
@@ -160,9 +160,9 @@ export default function Collection() {
       <div className="fixed top-6 right-6 z-50">
         <Link
           href="/"
-          onClick={() => {
+          onClick={async () => {
             // 現在再生中の音声があれば停止
-            audioManager.stopAll();
+            await audioManager.stopAll();
             audioManager.adjustBGMVolume(1.0);
             setCurrentAudioId(null);
           }}
@@ -180,10 +180,10 @@ export default function Collection() {
           {/* Gallery Header */}
           <div className="text-center mb-8">
             <h1 className="text-5xl md:text-6xl font-bold text-white mb-4">
-              🖼️ Gallery
+              🖼️ ギャラリー
             </h1>
             <p className="text-white/80 text-xl mb-6">
-              Tap images to play audio
+              画像をタップして音声を再生
             </p>
 
             {/* Search and Filter Controls */}
@@ -192,7 +192,7 @@ export default function Collection() {
                 <div className="relative">
                   <input
                     type="text"
-                    placeholder="🔍 Search words..."
+                    placeholder="🔍 単語を検索..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     className="w-full px-6 py-4 rounded-2xl bg-white/20 backdrop-blur-xl text-white placeholder-white/60 border border-white/30 focus:border-white/50 focus:outline-none transition-all duration-300 text-lg"
@@ -223,8 +223,8 @@ export default function Collection() {
           {searchTerm && (
             <div className="text-center mb-6">
               <p className="text-white/70 text-lg">
-                Found {filteredCollection.length} results for &ldquo;
-                {searchTerm}&rdquo;
+                &ldquo;{searchTerm}&rdquo; で {filteredCollection.length}{" "}
+                件の結果が見つかりました
               </p>
             </div>
           )}
@@ -286,7 +286,7 @@ export default function Collection() {
                     <div className="flex items-center justify-center gap-2">
                       <div className="w-2 h-2 bg-white/60 rounded-full"></div>
                       <p className="text-white/60 text-sm text-center">
-                        Audio Available
+                        音声利用可能
                       </p>
                       <div className="w-2 h-2 bg-white/60 rounded-full"></div>
                     </div>
@@ -301,10 +301,10 @@ export default function Collection() {
             <div className="text-center py-16">
               <div className="text-6xl mb-4">🔍</div>
               <h3 className="text-white text-2xl font-bold mb-2">
-                No matching images found
+                一致する画像が見つかりません
               </h3>
               <p className="text-white/70 text-lg mb-6">
-                Try adjusting your search terms or category filter
+                検索条件やカテゴリフィルターを調整してみてください
               </p>
               <button
                 onClick={() => {
@@ -313,7 +313,7 @@ export default function Collection() {
                 }}
                 className="bg-gradient-to-r from-purple-600 to-pink-600 text-white px-6 py-3 rounded-2xl shadow-lg transition-all duration-300 hover:scale-105 font-semibold"
               >
-                Clear Filters
+                フィルターをクリア
               </button>
             </div>
           )}
@@ -321,13 +321,13 @@ export default function Collection() {
           {/* Footer Actions */}
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center pt-8 border-t border-white/20">
             <div className="text-white/70 text-lg font-semibold">
-              {filteredCollection.length} / {collection.length} items
+              {filteredCollection.length} / {collection.length} アイテム
             </div>
             <Link
               href="/"
               className="bg-gradient-to-r from-purple-600 to-pink-600 text-white px-8 py-4 rounded-2xl shadow-lg transition-all duration-300 hover:scale-105 hover:shadow-2xl font-bold text-lg"
             >
-              🏠 Back to Home
+              🏠 ホームに戻る
             </Link>
           </div>
         </div>

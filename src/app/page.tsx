@@ -41,7 +41,7 @@ export default function Home() {
                 Italian Brainrot
               </h1>
               <p className="text-white/80 text-lg">
-                Test your brain with Italian sounds!
+                イタリアンサウンドでクイズに挑戦！
               </p>
             </div>
 
@@ -51,24 +51,24 @@ export default function Home() {
                 onClick={() => setStarted(true)}
                 className="w-full bg-gradient-to-r from-pink-500 to-purple-600 text-white py-5 px-6 rounded-2xl font-bold text-xl shadow-lg transition-all duration-300 hover:scale-[1.02] hover:shadow-xl active:scale-95"
               >
-                Start Quiz
+                クイズを開始
               </button>
 
               <a
                 href="/collection"
                 className="block w-full bg-white/20 backdrop-blur-md text-white py-5 px-6 rounded-2xl font-bold text-xl text-center shadow-lg transition-all duration-300 hover:scale-[1.02] hover:bg-white/30 active:scale-95 border border-white/30"
               >
-                View Gallery
+                ギャラリーを見る
               </a>
             </div>
 
             {/* フッター情報 */}
             <div className="mt-8 text-center">
               <p className="text-white/70 text-sm mb-2">
-                Choose the correct image from the sound
+                音声から正しい画像を選んでください
               </p>
               <p className="text-white/50 text-xs">
-                🔊 Click the speaker button to enable audio
+                🔊 スピーカーボタンをクリックして音声を有効にしてください
               </p>
             </div>
           </div>
