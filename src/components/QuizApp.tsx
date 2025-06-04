@@ -245,15 +245,51 @@ const QuizApp = ({ setStarted }: { setStarted: (value: boolean) => void }) => {
     }
   }, [current, gameStatus, adjustBgmVolume, audioManager]);
 
-  // 問題が変わった時の処理（自動音声再生は無効化してユーザーインタラクションエラーを防ぐ）
+  // 問題が変わった時の処理（BGMを停止して問題の音声を自動再生）
   React.useEffect(() => {
     if (current && gameStatus === "playing") {
-      // 自動音声再生は無効化 - ユーザーが🔊ボタンをクリックした時のみ再生
-      console.log(
-        "新しい問題が表示されました。🔊ボタンをクリックして音声を聞いてください。"
-      );
+      // 問題が表示されたらBGMを停止して音声を自動再生
+      const playQuestionAudio = async () => {
+        try {
+          // BGMを停止
+          audioManager.stopBGM();
+          
+          // 少し待ってから音声を再生（BGM停止の完了を待つ）
+          setTimeout(async () => {
+            try {
+              const soundPath = `/sound/${current.sound}`;
+              console.log("新しい問題の音声を自動再生:", soundPath);
+              
+              // 音声ファイルが存在するかチェック
+              const response = await fetch(soundPath, { method: "HEAD" });
+              if (response.ok) {
+                // 音声を自動再生
+                await audioManager.playSoundEffect(soundPath, 1.0);
+                console.log("問題音声の自動再生開始成功");
+              } else {
+                console.warn("音声ファイルが見つかりません:", soundPath);
+              }
+            } catch (error) {
+              // autoplayエラーの場合は静かに失敗し、ユーザーに🔊ボタンを促す
+              if (error instanceof Error && 
+                  (error.message.includes("autoplay") || 
+                   error.message.includes("user didn't interact") ||
+                   error.message.includes("NotAllowedError"))) {
+                console.log("自動再生は制限されました。🔊ボタンをクリックして音声を聞いてください。");
+              } else {
+                console.error("音声の自動再生中にエラーが発生しました:", error);
+              }
+            }
+          }, 300); // 300ms待機してからBGM停止後に音声再生
+          
+        } catch (error) {
+          console.error("BGM停止中にエラーが発生しました:", error);
+        }
+      };
+
+      playQuestionAudio();
     }
-  }, [current, gameStatus]);
+  }, [current, gameStatus, audioManager]);
 
   // ゲームステータスに応じたBGM制御
   React.useEffect(() => {

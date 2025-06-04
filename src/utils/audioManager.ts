@@ -118,7 +118,8 @@ class AudioManager {
 
       if (AudioContext) {
         // グローバルなAudioContextがあれば resume を試行
-        const contexts = (window as any).__audioContexts || [];
+        const w = window as Window & { __audioContexts?: AudioContext[] };
+        const contexts = w.__audioContexts || [];
         contexts.forEach((ctx: AudioContext) => {
           if (ctx.state === "suspended") {
             ctx
